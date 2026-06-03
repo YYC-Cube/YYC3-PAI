@@ -1,3 +1,14 @@
+/**
+ * @file tauri-plugin-fs.ts
+ * @description YYC³ AI-PAI tauri-plugin-fs.ts module
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [config]
+ */
+
 export const readTextFile = async (_path: string): Promise<string> => ''
 export const readFile = async (_path: string): Promise<Uint8Array> => new Uint8Array()
 export const writeFile = async (_path: string, _data: string | Uint8Array): Promise<void> => {}

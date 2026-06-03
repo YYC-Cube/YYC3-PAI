@@ -9,33 +9,49 @@
  * @license MIT
  */
 
-import { useState, useMemo } from 'react'
 import {
-  X, Settings, Globe, Palette, Keyboard, Info,
-  Monitor, Check, Code2,
-  Sparkles, RotateCcw, Download,
+  BookOpen,
+  Bot,
+  Check, Code2,
+  Cpu,
+  Download,
+  ExternalLink,
+  Globe,
+  Info,
+  Keyboard,
   LayoutGrid,
-  User, Bot, Plug, Cpu, BookOpen, MessageSquare, Shield,
+  MessageSquare,
+  Monitor,
+  Palette,
+  Plug,
+  RotateCcw,
   Search,
+  Settings,
+  Shield,
+  Sparkles,
+  User,
+  X,
 } from 'lucide-react'
+import { useMemo, useState } from 'react'
 import { useI18n } from '../i18n/context'
-import { useThemeStore, THEMES, type ThemeId, Z_INDEX, BLUR } from '../store/theme-store'
 import { useEditorPrefs } from '../store/editor-prefs-store'
-import { useShortcutStore } from '../store/shortcut-store'
-import { useSettingsStore, settingsActions } from '../store/settings-store'
 import { useMCPStore } from '../store/mcp-store'
 import { useModelStore } from '../store/model-store'
+import { settingsActions, useSettingsStore } from '../store/settings-store'
+import { useShortcutStore } from '../store/shortcut-store'
+import { BLUR, THEMES, type ThemeId, Z_INDEX, useThemeStore } from '../store/theme-store'
 import logoImg from '/yyc3-icons/macOS/64.png'
 
 // Sub-components
-import { ToggleRow, SectionLabel } from './settings/SettingsShared'
-import { AgentsTab, MCPTab, ModelsTab, ContextTab, ConversationTab, RulesSkillsTab } from './settings/AIServiceTabs'
-import { ShortcutsTab, LayoutsTab, AccountTab } from './settings/WorkspaceTabs'
+import { AudioPanel } from './audio/AudioPanel'
+import { AgentsTab, ContextTab, ConversationTab, MCPTab, RulesSkillsTab } from './settings/AIServiceTabs'
+import { SectionLabel, ToggleRow } from './settings/SettingsShared'
+import { AccountTab, LayoutsTab, ShortcutsTab } from './settings/WorkspaceTabs'
 
 type SettingsTab =
   | 'general' | 'editor' | 'appearance' | 'shortcuts' | 'layouts'
   | 'account' | 'agents' | 'mcp' | 'models' | 'context' | 'conversation' | 'rules-skills'
-  | 'about'
+  | 'audio' | 'about'
 
 interface SettingsPanelProps {
   visible: boolean
@@ -45,7 +61,7 @@ interface SettingsPanelProps {
 // Tab groups for sidebar
 const TAB_GROUPS = [
   {
-    label: { zh: '基础', en: 'Basic' },
+    label: { zh: '基础设置', en: 'Basic' },
     tabs: [
       { key: 'general' as SettingsTab, icon: Settings, labelKey: 'tabGeneral' },
       { key: 'editor' as SettingsTab, icon: Code2, labelKey: 'tabEditor' },
@@ -55,7 +71,7 @@ const TAB_GROUPS = [
     ],
   },
   {
-    label: { zh: 'AI & 服务', en: 'AI & Services' },
+    label: { zh: 'AI 服务', en: 'AI & Services' },
     tabs: [
       { key: 'agents' as SettingsTab, icon: Bot, labelKey: 'tabAgents' },
       { key: 'mcp' as SettingsTab, icon: Plug, labelKey: 'tabMCP' },
@@ -66,8 +82,9 @@ const TAB_GROUPS = [
     ],
   },
   {
-    label: { zh: '其他', en: 'Other' },
+    label: { zh: '扩展功能', en: 'Other' },
     tabs: [
+      { key: 'audio' as SettingsTab, icon: Sparkles, labelKey: 'tabAudio' },
       { key: 'account' as SettingsTab, icon: User, labelKey: 'tabAccount' },
       { key: 'about' as SettingsTab, icon: Info, labelKey: 'tabAbout' },
     ],
@@ -89,7 +106,7 @@ export function SettingsPanel({ visible, onClose }: SettingsPanelProps) {
 
   useMCPStore()
 
-  const { openModelSettings, aiModels } = useModelStore()
+  const { openModelSettings } = useModelStore()
 
   type SearchHit = { tab: SettingsTab; label: string; matchContext?: string }
 
@@ -133,13 +150,13 @@ export function SettingsPanel({ visible, onClose }: SettingsPanelProps) {
 
   const filteredTabs = searchQuery.trim()
     ? TAB_GROUPS.map(g => ({
-        ...g,
-        tabs: g.tabs.filter(td => {
-          const label = t('settings', td.labelKey).toLowerCase()
-          return label.includes(searchQuery.toLowerCase()) ||
-            searchResults.some(sr => sr.tab === td.key)
-        }),
-      })).filter(g => g.tabs.length > 0)
+      ...g,
+      tabs: g.tabs.filter(td => {
+        const label = t('settings', td.labelKey).toLowerCase()
+        return label.includes(searchQuery.toLowerCase()) ||
+          searchResults.some(sr => sr.tab === td.key)
+      }),
+    })).filter(g => g.tabs.length > 0)
     : TAB_GROUPS
 
   if (!visible) return null
@@ -176,7 +193,7 @@ export function SettingsPanel({ visible, onClose }: SettingsPanelProps) {
             <div className="flex items-center gap-2 px-2 py-1.5 rounded" style={{ background: tk.inputBg, border: `1px solid ${tk.inputBorder}` }}>
               <Search size={11} color={tk.foregroundMuted} />
               <input type="text" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} placeholder={t('settings', 'searchPlaceholder')} className="flex-1 bg-transparent outline-none" style={{ fontFamily: tk.fontMono, fontSize: '10px', color: tk.foreground }} />
-              {searchQuery && <button onClick={() => setSearchQuery('')} className="hover:opacity-80"><X size={9} color={tk.foregroundMuted} /></button>}
+              {searchQuery && <button onClick={() => setSearchQuery('')} aria-label="Clear search" className="hover:opacity-80"><X size={9} color={tk.foregroundMuted} /></button>}
             </div>
             {searchQuery.trim() && searchResults.length > 0 && (
               <div className="px-1 pb-1 max-h-32 overflow-y-auto neon-scrollbar">
@@ -205,8 +222,17 @@ export function SettingsPanel({ visible, onClose }: SettingsPanelProps) {
                 </div>
                 {group.tabs.map(({ key, icon: Icon, labelKey }) => {
                   const isActive = tab === key
+                  if (key === 'models') {
+                    return (
+                      <button key={key} data-settings-tab={key} onClick={() => { openModelSettings(); onClose(); }} className="w-full flex items-center gap-2.5 px-4 py-2 transition-all text-left" style={{ background: isActive ? tk.primaryGlow : 'transparent', borderLeft: isActive ? `2px solid ${tk.primary}` : `2px solid transparent`, color: isActive ? tk.primary : tk.foregroundMuted }}>
+                        <Icon size={13} />
+                        <span style={{ fontFamily: tk.fontMono, fontSize: '10px', letterSpacing: '0.5px' }}>{t('settings', labelKey)}</span>
+                        <ExternalLink size={9} className="ml-auto opacity-50" />
+                      </button>
+                    )
+                  }
                   return (
-                    <button key={key} onClick={() => setTab(key)} className="w-full flex items-center gap-2.5 px-4 py-2 transition-all text-left" style={{ background: isActive ? tk.primaryGlow : 'transparent', borderLeft: isActive ? `2px solid ${tk.primary}` : '2px solid transparent', color: isActive ? tk.primary : tk.foregroundMuted }}>
+                    <button key={key} data-settings-tab={key} onClick={() => setTab(key)} className="w-full flex items-center gap-2.5 px-4 py-2 transition-all text-left" style={{ background: isActive ? tk.primaryGlow : 'transparent', borderLeft: isActive ? `2px solid ${tk.primary}` : `2px solid transparent`, color: isActive ? tk.primary : tk.foregroundMuted }}>
                       <Icon size={13} />
                       <span style={{ fontFamily: tk.fontMono, fontSize: '10px', letterSpacing: '0.5px' }}>{t('settings', labelKey)}</span>
                     </button>
@@ -224,7 +250,7 @@ export function SettingsPanel({ visible, onClose }: SettingsPanelProps) {
         {/* Content area */}
         <div className="flex-1 flex flex-col min-w-0">
           <div className="flex items-center justify-end px-4 py-2">
-            <button onClick={onClose} className="p-1 rounded hover:opacity-80 transition-all"><X size={16} color={tk.foregroundMuted} /></button>
+            <button onClick={onClose} aria-label="Close settings" className="p-1 rounded hover:opacity-80 transition-all"><X size={16} color={tk.foregroundMuted} /></button>
           </div>
 
           <div className="flex-1 overflow-y-auto neon-scrollbar px-6 pb-6">
@@ -267,7 +293,7 @@ export function SettingsPanel({ visible, onClose }: SettingsPanelProps) {
                 <div>
                   <SectionLabel text={t('settings', 'fontSize')} tk={tk} />
                   <div className="flex items-center gap-3 mt-2">
-                    <input type="range" min={10} max={24} step={1} value={editorPrefs.fontSize} onChange={(e) => setEditorPref('fontSize', Number(e.target.value))} className="flex-1" style={{ accentColor: tk.primary }} />
+                    <input type="range" min={10} max={24} step={1} value={editorPrefs.fontSize} onChange={(e) => setEditorPref('fontSize', Number(e.target.value))} aria-label={t('settings', 'fontSize')} className="flex-1" style={{ accentColor: tk.primary }} />
                     <span style={{ fontFamily: tk.fontMono, fontSize: '12px', color: tk.foreground, minWidth: 32, textAlign: 'right' }}>{editorPrefs.fontSize}px</span>
                   </div>
                 </div>
@@ -335,10 +361,30 @@ export function SettingsPanel({ visible, onClose }: SettingsPanelProps) {
             {tab === 'account' && <AccountTab tk={tk} />}
             {tab === 'agents' && <AgentsTab tk={tk} />}
             {tab === 'mcp' && <MCPTab tk={tk} />}
-            {tab === 'models' && <ModelsTab tk={tk} openModelSettings={openModelSettings} aiModels={aiModels} />}
+            {tab === 'models' && (
+              <div className="space-y-5">
+                <div className="flex items-center justify-between">
+                  <label style={{ fontFamily: tk.fontMono, fontSize: '10px', color: tk.primary, letterSpacing: '1px' }}>{t('settings', 'modelsTitle')}</label>
+                  <button onClick={() => { openModelSettings(); onClose(); }} className="flex items-center gap-1.5 px-3 py-1.5 rounded transition-all hover:opacity-80" style={{ fontFamily: tk.fontMono, fontSize: '10px', color: '#fff', background: tk.primary }}>
+                    <ExternalLink size={11} /> {t('settings', 'modelsOpenManager')}
+                  </button>
+                </div>
+                <p style={{ fontFamily: tk.fontMono, fontSize: '9px', color: tk.foregroundMuted }}>{t('settings', 'modelsManageHint')}</p>
+                <div className="rounded-lg p-8 text-center" style={{ border: `1px dashed ${tk.borderDim}`, background: tk.primaryGlow }}>
+                  <Cpu size={32} color={tk.primary} className="mx-auto mb-3 opacity-50" />
+                  <p style={{ fontFamily: tk.fontMono, fontSize: '11px', color: tk.foregroundMuted }}>{t('settings', 'modelsFullManager')}</p>
+                  <button onClick={() => { openModelSettings(); onClose(); }} className="mt-4 flex items-center gap-1.5 px-4 py-2 mx-auto rounded transition-all hover:opacity-90" style={{ fontFamily: tk.fontMono, fontSize: '11px', color: '#fff', background: tk.primary }}>
+                    <ExternalLink size={12} /> {t('settings', 'modelsOpenManager')}
+                  </button>
+                </div>
+              </div>
+            )}
             {tab === 'context' && <ContextTab tk={tk} />}
             {tab === 'conversation' && <ConversationTab tk={tk} />}
             {tab === 'rules-skills' && <RulesSkillsTab tk={tk} />}
+
+            {/* === Audio === */}
+            {tab === 'audio' && <AudioPanel className="mt-4" />}
 
             {/* === About === */}
             {tab === 'about' && (

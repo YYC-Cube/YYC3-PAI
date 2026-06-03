@@ -10,25 +10,55 @@
  * @copyright Copyright (c) 2026 YanYuCloudCube Team
  * @tags settings,model,ai,ui,component
  */
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
-  X, Plus, Trash2, Edit3, Check, ChevronDown, ChevronRight,
-  Server, Cloud, Bot, Sparkles, RefreshCw, ExternalLink,
-  Eye, EyeOff, AlertCircle, CheckCircle2, Copy, Search,
-  Zap, Loader2, XCircle, Clock, Settings2,
-  Shield, Cpu, Activity, Terminal,
-  ArrowRight, Wifi, Plug, AlertTriangle,
-  FileCode2, PlusCircle, Lightbulb, Bug, Palette, BarChart3
+  Activity,
+  AlertCircle,
+  AlertTriangle,
+  ArrowRight,
+  BarChart3,
+  Bot,
+  Bug,
+  Check,
+  CheckCircle2,
+  ChevronDown, ChevronRight,
+  Clock,
+  Cloud,
+  Code2,
+  Copy,
+  Cpu,
+  Edit3,
+  ExternalLink,
+  Eye, EyeOff,
+  FileCode2,
+  Lightbulb,
+  Loader2,
+  Palette,
+  Plug,
+  Plus,
+  PlusCircle,
+  RefreshCw,
+  Search,
+  Server,
+  Settings2,
+  Shield,
+  Sparkles,
+  Terminal,
+  Trash2,
+  Wifi,
+  X,
+  XCircle,
+  Zap
 } from "lucide-react";
-import { useModelStore, type AIModel } from "../store/model-store";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n, type TranslationSection } from "../i18n/context";
-import { useThemeStore, themeStore, type ThemeTokens, Z_INDEX, BLUR } from "../store/theme-store";
-import { ThemePreview } from "./ThemePreview";
-import { useAIMetrics, getErrorTypeLabel, aiMetricsStore } from "../store/ai-metrics-store";
-import type { AggregatedMetrics, ErrorStats, CostSummary } from "../store/ai-metrics-store";
+import type { AggregatedMetrics, CostSummary, ErrorStats } from "../store/ai-metrics-store";
+import { aiMetricsStore, getErrorTypeLabel, useAIMetrics } from "../store/ai-metrics-store";
+import { useModelStore, type AIModel } from "../store/model-store";
+import { BLUR, themeStore, useThemeStore, Z_INDEX, type ThemeTokens } from "../store/theme-store";
 import type { NetworkError as _NetworkError } from "../types/errors";
 import { createLogger } from "../utils/logger";
-import { trackModelSwitch, trackOllamaDetection, trackModelTest, trackModelImport } from "../utils/model-performance-tracker";
+import { trackModelImport, trackModelSwitch, trackModelTest, trackOllamaDetection } from "../utils/model-performance-tracker";
+import { ThemePreview } from "./ThemePreview";
 
 const logger = createLogger('ModelSettings');
 
@@ -62,20 +92,28 @@ interface OllamaDetectedModel {
 // ===== Provider Definitions =====
 const PROVIDERS: ProviderDef[] = [
   {
-    id: "zhipu", name: "智谱 AI", shortName: "GLM", icon: Cpu,
+    id: "zhipu", name: "Z.ai 智谱", shortName: "GLM", icon: Cpu,
     color: "#4488ff", bgColor: "rgba(68,136,255,0.06)", borderColor: "rgba(68,136,255,0.2)",
-    description: "GLM-5 / GLM-4 系列",
+    description: "Z.ai 通用端点 · GLM-5 / GLM-4 系列",
     baseURL: "https://open.bigmodel.cn/api/paas/v4/chat/completions",
     apiKeyUrl: "https://open.bigmodel.cn/usercenter/apikeys", apiKeyPlaceholder: "输入智谱 API Key...",
     openaiCompatible: true, docsUrl: "https://open.bigmodel.cn/dev/api/normal-model/glm-4",
     models: [
       { id: "glm-5.1", name: "GLM-5.1", description: "最新旗舰推理模型", contextWindow: "128K" },
-      { id: "glm-5", name: "GLM-5", description: "最新旗舰推理模型", contextWindow: "128K" },
       { id: "glm-5-turbo", name: "GLM-5-Turbo", description: "高速版旗舰模型", contextWindow: "128K" },
       { id: "glm-4.7", name: "GLM-4.7", description: "高性能对话模型", contextWindow: "128K" },
-      { id: "glm-4.6", name: "GLM-4.6", description: "增强对话模型", contextWindow: "128K" },
-      { id: "glm-4.5", name: "GLM-4.5", description: "高质量对话模型", contextWindow: "128K" },
-      { id: "glm-4.5-air", name: "GLM-4.5-Air", description: "轻量高速模型" },
+      { id: "glm-4.5-air", name: "GLM-4.5-Air", description: "轻量高速模型", contextWindow: "128K" },
+    ],
+  },
+  {
+    id: "zhipu-coding", name: "Z.ai Coding", shortName: "Code", icon: Code2,
+    color: "#22c55e", bgColor: "rgba(34,197,94,0.06)", borderColor: "rgba(34,197,94,0.2)",
+    description: "Z.ai Coding 端点 · 代码专用",
+    baseURL: "https://open.bigmodel.cn/api/coding/paas/v4/chat/completions",
+    apiKeyUrl: "https://open.bigmodel.cn/usercenter/apikeys", apiKeyPlaceholder: "输入智谱 API Key (与通用端点共享)",
+    openaiCompatible: true, docsUrl: "https://open.bigmodel.cn/dev/api/coding-model/coding-model",
+    models: [
+      { id: "codegeex-4", name: "CodeGeeX-4", description: "代码生成专用模型", contextWindow: "128K" },
     ],
   },
   {
@@ -210,7 +248,7 @@ function ProviderCard({ provider, apiKey, customUrl, diags, expanded, activeMode
                   </button>
                 ) : (
                   <div className="flex items-center gap-1">
-                    <button onClick={() => { onUrlChange(urlDraft); setEditingUrl(false); }} className="px-1.5 py-0.5 rounded transition-all hover:opacity-80" style={{ fontFamily: tk.fontMono, fontSize: "9px", color: tk.success }}><Check size={9} /></button>
+                    <button onClick={() => { onUrlChange(urlDraft); setEditingUrl(false); }} className="px-1.5 py-0.5 rounded transition-all hover:opacity-80" style={{ fontFamily: tk.fontMono, fontSize: "9px", color: tk.success }} aria-label={t("modelSettings", "confirm")} title={t("modelSettings", "confirm")}><Check size={9} /></button>
                     <button onClick={() => setEditingUrl(false)} className="px-1.5 py-0.5 rounded transition-all hover:opacity-80" style={{ fontFamily: tk.fontMono, fontSize: "9px", color: tk.foregroundMuted }}>{t("modelSettings", "cancel")}</button>
                   </div>
                 )}
@@ -218,7 +256,7 @@ function ProviderCard({ provider, apiKey, customUrl, diags, expanded, activeMode
               </div>
             </div>
             {editingUrl ? (
-              <input value={urlDraft} onChange={e => setUrlDraft(e.target.value)} className={cyInput} style={{ ...getCyInputStyle() }} />
+              <input value={urlDraft} onChange={e => setUrlDraft(e.target.value)} className={cyInput} style={{ ...getCyInputStyle() }} aria-label={t("modelSettings", "apiEndpointLabel")} />
             ) : (
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ background: tk.inputBg, border: `1px solid ${tk.borderDim}` }}>
                 <span className="truncate flex-1" style={{ fontFamily: tk.fontMono, fontSize: "10px", color: tk.foregroundMuted }}>{activeUrl}</span>
@@ -288,7 +326,7 @@ function ProviderCard({ provider, apiKey, customUrl, diags, expanded, activeMode
                     {diag?.status === "success" && diag.latency != null && <span style={{ fontFamily: tk.fontMono, fontSize: "9px", color: tk.success }}>{diag.latency}ms</span>}
                     <div className="flex items-center gap-0.5 opacity-100 transition-opacity">
                       {!isActive && <button onClick={() => onSelectModel(model.id)} className="flex items-center gap-1 px-2 py-1 rounded-lg transition-all hover:opacity-80" style={{ fontFamily: tk.fontMono, fontSize: "9px", color: tk.primary, border: `1px solid ${tk.border}` }}><ArrowRight size={9} />{t("modelSettings", "use")}</button>}
-                      <button onClick={() => onTestConnection(model.id)} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.foregroundMuted }}>
+                      <button onClick={() => onTestConnection(model.id)} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.foregroundMuted }} aria-label={`${t("modelSettings", "testConnection")} ${model.name}`} title={`${t("modelSettings", "testConnection")} ${model.name}`}>
                         {diag?.status === "testing" ? <Loader2 size={10} className="animate-spin" /> : <Zap size={10} />}
                       </button>
                       {onEditModel && (
@@ -297,7 +335,7 @@ function ProviderCard({ provider, apiKey, customUrl, diags, expanded, activeMode
                           if (newName && newName !== model.name) {
                             onEditModel(model.id, { name: newName });
                           }
-                        }} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.primary }}>
+                        }} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.primary }} aria-label={`${t("modelSettings", "edit")} ${model.name}`} title={`${t("modelSettings", "edit")} ${model.name}`}>
                           <Edit3 size={10} />
                         </button>
                       )}
@@ -306,7 +344,7 @@ function ProviderCard({ provider, apiKey, customUrl, diags, expanded, activeMode
                           if (confirm(t("modelSettings", "confirmRemoveModel"))) {
                             onRemoveModel(model.id);
                           }
-                        }} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.error }}>
+                        }} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.error }} aria-label={`${t("modelSettings", "remove")} ${model.name}`} title={`${t("modelSettings", "remove")} ${model.name}`}>
                           <Trash2 size={10} />
                         </button>
                       )}
@@ -318,8 +356,8 @@ function ProviderCard({ provider, apiKey, customUrl, diags, expanded, activeMode
 
             {addingModel && (
               <div className="flex items-center gap-2 px-3 py-2 rounded-lg" style={{ border: `1px dashed ${tk.border}`, background: tk.inputBg }}>
-                <input value={newMId} onChange={e => setNewMId(e.target.value)} placeholder="Model ID" className="flex-1 bg-transparent text-[11px] font-mono outline-none" style={{ color: tk.foreground, caretColor: tk.primary }} />
-                <input value={newMName} onChange={e => setNewMName(e.target.value)} placeholder="Display Name" className="flex-1 bg-transparent text-[11px] font-mono outline-none" style={{ color: tk.foreground, caretColor: tk.primary }} />
+                <input value={newMId} onChange={e => setNewMId(e.target.value)} placeholder="Model ID" className="flex-1 bg-transparent text-[11px] font-mono outline-none" style={{ color: tk.foreground, caretColor: tk.primary }} aria-label="Model ID" />
+                <input value={newMName} onChange={e => setNewMName(e.target.value)} placeholder="Display Name" className="flex-1 bg-transparent text-[11px] font-mono outline-none" style={{ color: tk.foreground, caretColor: tk.primary }} aria-label="Display Name" />
                 <button onClick={() => {
                   if (newMId && newMName && onAddModel) {
                     onAddModel(newMId, newMName, "Custom model");
@@ -327,8 +365,8 @@ function ProviderCard({ provider, apiKey, customUrl, diags, expanded, activeMode
                     setNewMName("");
                     setAddingModel(false);
                   }
-                }} disabled={!newMId || !newMName} className="p-1 disabled:opacity-30" style={{ color: tk.success }}><Check size={12} /></button>
-                <button onClick={() => { setAddingModel(false); setNewMId(""); setNewMName(""); }} className="p-1" style={{ color: tk.foregroundMuted }}><X size={12} /></button>
+                }} disabled={!newMId || !newMName} className="p-1 disabled:opacity-30" style={{ color: tk.success }} aria-label={t("modelSettings", "confirm")} title={t("modelSettings", "confirm")}><Check size={12} /></button>
+                <button onClick={() => { setAddingModel(false); setNewMId(""); setNewMName(""); }} className="p-1" style={{ color: tk.foregroundMuted }} aria-label={t("modelSettings", "cancel")} title={t("modelSettings", "cancel")}><X size={12} /></button>
               </div>
             )}
           </div>
@@ -459,7 +497,7 @@ function MCPPanel({ t }: { t: (section: TranslationSection, key: string) => stri
 
       {jsonMode && (
         <div className="space-y-2">
-          <textarea value={jsonDraft} onChange={e => { setJsonDraft(e.target.value); setJsonError(""); }} rows={10} className="w-full px-3 py-2 rounded-lg text-[10px] font-mono resize-none outline-none" style={{ color: tk.foreground, background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, caretColor: tk.primary }} />
+          <textarea value={jsonDraft} onChange={e => { setJsonDraft(e.target.value); setJsonError(""); }} rows={10} className="w-full px-3 py-2 rounded-lg text-[10px] font-mono resize-none outline-none" style={{ color: tk.foreground, background: tk.inputBg, border: `1px solid ${tk.inputBorder}`, caretColor: tk.primary }} aria-label={t("modelSettings", "mcpJsonMode")} />
           {jsonError && <div className="flex items-center gap-1" style={{ fontFamily: tk.fontMono, fontSize: "10px", color: tk.error }}><AlertCircle size={10} />{jsonError}</div>}
           <div className="flex items-center gap-2">
             <button onClick={importJson} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all hover:opacity-80" style={{ fontFamily: tk.fontMono, fontSize: "10px", color: tk.secondary, background: `${tk.secondary}1a`, border: `1px solid ${tk.secondary}33` }}><Check size={10} />{t("modelSettings", "mcpImport")}</button>
@@ -475,7 +513,7 @@ function MCPPanel({ t }: { t: (section: TranslationSection, key: string) => stri
           {servers.map(srv => (
             <div key={srv.id} className="rounded-xl p-3 space-y-2 transition-all" style={{ background: srv.enabled ? tk.cardBg : tk.backgroundAlt, border: `1px solid ${srv.enabled ? tk.cardBorder : tk.borderDim}`, opacity: srv.enabled ? 1 : 0.5, borderRadius: tk.borderRadius }}>
               <div className="flex items-center gap-2.5">
-                <button onClick={() => setServers(p => p.map(s => s.id === srv.id ? { ...s, enabled: !s.enabled } : s))} className="shrink-0">
+                <button onClick={() => setServers(p => p.map(s => s.id === srv.id ? { ...s, enabled: !s.enabled } : s))} className="shrink-0" aria-label={`${srv.enabled ? t("modelSettings", "disable") : t("modelSettings", "enable")} ${srv.name}`} title={`${srv.enabled ? t("modelSettings", "disable") : t("modelSettings", "enable")} ${srv.name}`}>
                   <div className="w-8 h-4 rounded-full transition-all" style={{ background: srv.enabled ? `${tk.secondary}4d` : tk.borderDim }}>
                     <div className="w-3.5 h-3.5 rounded-full transition-all" style={{ background: srv.enabled ? tk.secondary : tk.foregroundMuted, marginTop: 1, marginLeft: srv.enabled ? 17 : 1 }} />
                   </div>
@@ -484,8 +522,8 @@ function MCPPanel({ t }: { t: (section: TranslationSection, key: string) => stri
                   <div style={{ fontFamily: tk.fontMono, fontSize: "11px", color: tk.foreground }}>{srv.name}</div>
                   <div style={{ fontFamily: tk.fontMono, fontSize: "9px", color: tk.foregroundMuted }}>{srv.description}</div>
                 </div>
-                <button onClick={() => setEditId(editId === srv.id ? null : srv.id)} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.foregroundMuted }}><Settings2 size={10} /></button>
-                <button onClick={() => setServers(p => p.filter(s => s.id !== srv.id))} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.foregroundMuted }}><Trash2 size={10} /></button>
+                <button onClick={() => setEditId(editId === srv.id ? null : srv.id)} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.foregroundMuted }} aria-label={`${t("modelSettings", "edit")} ${srv.name}`} title={`${t("modelSettings", "edit")} ${srv.name}`}><Settings2 size={10} /></button>
+                <button onClick={() => setServers(p => p.filter(s => s.id !== srv.id))} className="p-1 rounded transition-all hover:opacity-80" style={{ color: tk.foregroundMuted }} aria-label={`${t("modelSettings", "remove")} ${srv.name}`} title={`${t("modelSettings", "remove")} ${srv.name}`}><Trash2 size={10} /></button>
               </div>
               {editId === srv.id && (
                 <div className="pl-10 space-y-1" style={{ fontFamily: tk.fontMono, fontSize: "9px" }}>
@@ -925,7 +963,7 @@ export function ModelSettings() {
     const model = provider.models.find(m => m.id === modelId);
     if (!model) return;
     const dk = providerId + ":" + modelId;
-    const key = apiKeys[providerId] || "";
+    const key = apiKeys[providerId] || apiKeys["zhipu"] || "";
     const url = customUrls[providerId] || provider.baseURL;
 
     if (providerId !== "ollama" && !key) { setDiagnostics(p => ({ ...p, [dk]: { providerId, modelName: model.name, status: "error", message: t("modelSettings", "noApiKey"), timestamp: Date.now() } })); return; }
@@ -1010,7 +1048,7 @@ export function ModelSettings() {
     const model = provider.models.find(m => m.id === modelId);
     if (!model) return;
     const url = customUrls[providerId] || provider.baseURL;
-    const key = apiKeys[providerId] || "";
+    const key = apiKeys[providerId] || apiKeys["zhipu"] || "";
     const pt: AIModel["provider"] = providerId === "openai" ? "openai" : providerId === "ollama" ? "ollama" : "custom";
     const existing = aiModels.find(m => (m.name === model.id || m.name === model.name) && m.endpoint === url);
     if (existing) { updateAIModel(existing.id, { apiKey: key, name: model.id }); activateAIModel(existing.id); }
@@ -1303,10 +1341,10 @@ export function ModelSettings() {
           </button>
         </div>
 
-        {/* Tabs */}
+        {/* Tabs - adaptive height with minimum height to prevent content overlap */}
         <div
-          className="flex gap-1 px-5 pt-3 pb-0 overflow-x-auto"
-          style={{ borderBottom: `1px solid ${tokens.borderDim}` }}
+          className="flex items-center gap-1 px-5 py-3 overflow-x-auto shrink-0"
+          style={{ borderBottom: `1px solid ${tokens.borderDim}`, minHeight: "48px" }}
           role="tablist"
           aria-label={t("modelSettings", "ariaTabNav")}
         >
@@ -1330,7 +1368,6 @@ export function ModelSettings() {
                 borderRadius: "6px 6px 0 0",
               }}
               role="tab"
-              aria-selected={activeTab === key}
               aria-controls={`tabpanel-${key}`}
             >
               <Icon size={13} />{t("modelSettings", labelKey)}
@@ -1450,7 +1487,7 @@ export function ModelSettings() {
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <input value={ollamaHost} onChange={e => setOllamaHost(e.target.value)} className={`flex-1 ${cyInput}`} style={{ ...getCyInputStyle() }} />
+                  <input value={ollamaHost} onChange={e => setOllamaHost(e.target.value)} className={`flex-1 ${cyInput}`} style={{ ...getCyInputStyle() }} aria-label={t("modelSettings", "ollamaEndpoint")} />
                   <button
                     onClick={handleScanOllama}
                     disabled={ollamaScanning}

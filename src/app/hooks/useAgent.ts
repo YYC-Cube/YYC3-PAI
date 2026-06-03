@@ -1,12 +1,14 @@
 /**
- * YYC³ AI - useAgent Hook
- *
- * AI Agent系统Hook
- * 封装agent-store,提供高级接口
- * 支持PDA+记忆+反思架构
+ * @file useAgent.ts
+ * @description AI Agent 系统核心 Hook · 封装 agent-store 高级接口 · PDA+记忆+反思架构
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-04-08
+ * @updated 2026-05-06
+ * @status active
+ * @tags [hook],[agent],[ai],[pda]
  *
  * @module hooks/useAgent
- * @description AI Agent系统核心Hook
  */
 
 import { useCallback, useEffect, useState } from 'react';

@@ -1,15 +1,19 @@
 /**
  * @file sync-engine.ts
- * @description 同步引擎核心，实现双向同步、冲突检测和智能合并
+ * @description 同步引擎核心 v2.0.0 - 实现双向同步、冲突检测、智能合并和远程后端
  * @author YanYuCloudCube Team <admin@0379.email>
- * @version v1.0.0
+ * @version v2.0.0
  * @created 2026-04-08
+ * @updated 2026-06-03
  * @status stable
  * @license MIT
  */
 
 import { createLogger } from '../utils/logger'
 import { getFileSystemWatcher, type FileChangeEvent } from './file-system-watcher'
+import { indexedDBService } from './indexeddb-service'
+import type { BackendConnectionConfig, BackendType, SyncDirection } from './sync-backend-adapter'
+import { BackendManager } from './sync-backend-adapter'
 
 const logger = createLogger('sync-engine')
 
@@ -57,6 +61,10 @@ export interface SyncEngineOptions {
   onProgress?: (progress: { current: number; total: number; item: SyncItem }) => void
   onComplete?: (result: SyncResult) => void
   onConflict?: (conflict: SyncConflict) => void
+  // v2.0.0: 远程后端配置
+  backendType?: BackendType
+  backendConfig?: BackendConnectionConfig
+  syncDirection?: SyncDirection
 }
 
 interface SyncState {
@@ -73,6 +81,9 @@ const DEFAULT_OPTIONS: Required<Omit<SyncEngineOptions, 'onStatusChange' | 'onPr
   syncIntervalMs: 30000,
   conflictStrategy: 'local-win',
   maxConcurrentSyncs: 3,
+  backendType: 'none' as BackendType,
+  backendConfig: {} as BackendConnectionConfig,
+  syncDirection: 'bidirectional' as SyncDirection,
 }
 
 class SyncEngine {
@@ -94,9 +105,20 @@ class SyncEngine {
   private autoSyncTimer: ReturnType<typeof setInterval> | null = null
   private fileWatcher: ReturnType<typeof getFileSystemWatcher> | null = null
   private abortController: AbortController | null = null
+  private backendManager: BackendManager
 
   constructor(options: SyncEngineOptions = {}) {
     this.options = { ...DEFAULT_OPTIONS, ...options }
+    this.backendManager = BackendManager.getInstance()
+
+    // 如果提供了后端配置，自动连接
+    if (this.options.backendType && this.options.backendType !== 'none' && this.options.backendConfig) {
+      this.backendManager.setActiveBackend(this.options.backendType, this.options.backendConfig)
+      if (this.options.syncDirection) {
+        this.backendManager.setSyncDirection(this.options.syncDirection)
+      }
+    }
+
     this.initializeFileWatcher()
   }
 
@@ -217,8 +239,27 @@ class SyncEngine {
       }
     }
 
+    // v2.0.0: 如果是双向同步或拉取模式，从远程获取变更
+    const direction = this.options.syncDirection || 'bidirectional'
+    if ((direction === 'bidirectional' || direction === 'pull') && this.backendManager.getActiveType() !== 'none') {
+      try {
+        const remoteFiles = await this.backendManager.getActive().list()
+        const pullResults = await this.pullFromRemote(remoteFiles)
+        result.syncedItems += pullResults.pulled
+        result.conflictedItems += pullResults.conflicts
+        result.errors.push(...pullResults.errors)
+      } catch (error) {
+        logger.error('[SyncEngine] Failed to pull from remote:', error)
+        result.errors.push(`Pull failed: ${(error as Error).message}`)
+      }
+    }
+
     result.durationMs = Math.round(performance.now() - startTime)
     this.state.lastSyncTime = Date.now()
+
+    if (this.backendManager.getActiveType() !== 'none') {
+      this.backendManager.updateLastSyncTime()
+    }
 
     this.state.history.unshift(result)
     if (this.state.history.length > 50) {
@@ -308,12 +349,206 @@ class SyncEngine {
     return 'manual'
   }
 
-  private async applyResolution(_item: SyncItem, _resolution: ConflictResolution): Promise<void> {
-    logger.info(`Applying resolution: ${_resolution}`)
+  private async applyResolution(item: SyncItem, resolution: ConflictResolution): Promise<void> {
+    logger.info(`Applying resolution: ${resolution} for ${item.path}`)
+
+    try {
+      // 根据冲突解决策略选择保留哪个版本
+      if (resolution === 'local-win') {
+        // 上传本地版本覆盖远程
+        await this.uploadToBackend(item)
+      } else if (resolution === 'remote-win') {
+        // 下载远程版本覆盖本地
+        const payload = await this.backendManager.getActive().download(item.path)
+        if (payload) {
+          await this.writeToLocal(item.path, payload.data)
+        }
+      }
+
+      // 标记冲突已解决
+      const conflict = this.state.conflicts.get(item.path)
+      if (conflict) {
+        conflict.resolution = resolution
+        conflict.resolvedBy = 'system'
+      }
+    } catch (error) {
+      logger.error(`Failed to apply resolution for ${item.path}:`, error)
+      throw error
+    }
   }
 
-  private async uploadItem(_item: SyncItem): Promise<void> {
-    logger.info(`Uploading item: ${_item.path}`)
+  private async uploadToBackend(item: SyncItem): Promise<void> {
+    const data = await this.readFromLocal(item.path)
+    if (data === null) {
+      logger.warn(`No local data found for ${item.path}, skipping upload`)
+      return
+    }
+
+    const checksum = await this.calculateChecksum(data)
+    await this.backendManager.getActive().upload({
+      path: item.path,
+      data,
+      checksum,
+      timestamp: item.localVersion,
+    })
+  }
+
+  private async uploadItem(item: SyncItem): Promise<void> {
+    await this.uploadToBackend(item)
+    item.status = 'completed'
+  }
+
+  /**
+   * 从远程拉取变更并与本地合并
+   */
+  private async pullFromRemote(remoteFiles: import('./sync-backend-adapter').RemoteFileInfo[]): Promise<{ pulled: number; conflicts: number; errors: string[] }> {
+    const result = { pulled: 0, conflicts: 0, errors: [] as string[] }
+
+    for (const remoteFile of remoteFiles) {
+      try {
+        // 检查本地是否已有此文件
+        const localData = await this.readFromLocal(remoteFile.path)
+
+        if (localData === null) {
+          // 本地没有，直接下载远程版本
+          const payload = await this.backendManager.getActive().download(remoteFile.path)
+          if (payload) {
+            await this.writeToLocal(remoteFile.path, payload.data)
+            result.pulled++
+          }
+        } else {
+          // 本地已有，检查是否存在冲突
+          const localChecksum = await this.calculateChecksum(localData)
+          const item: SyncItem = {
+            id: `pull_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+            path: remoteFile.path,
+            type: 'modify',
+            status: 'pending',
+            localVersion: Date.now(),
+            remoteVersion: remoteFile.lastModified,
+            timestamp: Date.now(),
+            size: remoteFile.size,
+          }
+
+          const hasConflict = localChecksum !== remoteFile.checksum && localChecksum !== ''
+          if (hasConflict) {
+            const conflict = await this.createConflict(item)
+            if (this.options.onConflict) {
+              this.options.onConflict(conflict)
+            }
+            result.conflicts++
+          }
+        }
+      } catch (error) {
+        result.errors.push(`Failed to pull ${remoteFile.path}: ${(error as Error).message}`)
+      }
+    }
+
+    return result
+  }
+
+  /**
+   * 从本地存储读取数据
+   */
+  private async readFromLocal(path: string): Promise<string | null> {
+    // 先尝试 localStorage
+    const lsValue = localStorage.getItem(path)
+    if (lsValue !== null) return lsValue
+
+    // 再尝试 IndexedDB
+    try {
+      const record = await indexedDBService.get('large-data', path)
+      if (record?.data) {
+        return typeof record.data === 'string' ? record.data : JSON.stringify(record.data)
+      }
+    } catch {
+      // Ignore IndexedDB errors
+    }
+
+    return null
+  }
+
+  /**
+   * 写入数据到本地存储
+   */
+  private async writeToLocal(path: string, data: string): Promise<void> {
+    try {
+      // 判断数据大小决定存储位置
+      const size = new Blob([data]).size
+      if (size < 100 * 1024) { // < 100KB -> localStorage
+        localStorage.setItem(path, data)
+      } else {
+        // >= 100KB -> IndexedDB
+        await indexedDBService.set('large-data', path, data, { type: 'sync-data' })
+      }
+    } catch (error) {
+      logger.error(`Failed to write to local storage: ${path}`, error)
+      throw error
+    }
+  }
+
+  /**
+   * 计算数据校验和
+   */
+  private async calculateChecksum(data: string): Promise<string> {
+    const encoder = new TextEncoder()
+    const buffer = encoder.encode(data)
+    const hash = await crypto.subtle.digest('SHA-256', buffer)
+    const hashArray = Array.from(new Uint8Array(hash))
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  }
+
+  // ==========================================================================
+  // v2.0.0: 后端配置管理
+  // ==========================================================================
+
+  /**
+   * 配置并连接远程同步后端
+   */
+  async configureBackend(type: BackendType, config: BackendConnectionConfig): Promise<boolean> {
+    const connected = await this.backendManager.setActiveBackend(type, config)
+    if (connected) {
+      this.options.backendType = type
+      this.options.backendConfig = config
+      logger.info(`[SyncEngine] Backend configured: ${type}`)
+    }
+    return connected
+  }
+
+  /** 断开后端连接 */
+  async disconnectBackend(): Promise<void> {
+    await this.backendManager.getActive().disconnect()
+    this.options.backendType = 'none'
+    logger.info('[SyncEngine] Backend disconnected')
+  }
+
+  /** 获取当前后端状态 */
+  getBackendStatus() {
+    return {
+      type: this.backendManager.getActiveType(),
+      status: this.backendManager.getActive().status,
+    }
+  }
+
+  /** 获取后端管理器（用于 UI 展示配置） */
+  getBackendManager(): BackendManager {
+    return this.backendManager
+  }
+
+  /** 设置同步方向 */
+  setSyncDirection(direction: SyncDirection): void {
+    this.backendManager.setSyncDirection(direction)
+    this.options.syncDirection = direction
+  }
+
+  /** 获取同步方向 */
+  getSyncDirection(): SyncDirection {
+    return this.options.syncDirection || 'bidirectional'
+  }
+
+  /** 健康检查当前后端 */
+  async healthCheckBackend() {
+    return this.backendManager.getActive().healthCheck()
   }
 
   setStatus(status: SyncStatus): void {

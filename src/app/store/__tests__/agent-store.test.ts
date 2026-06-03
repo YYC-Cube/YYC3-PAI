@@ -1,4 +1,15 @@
 /**
+ * @file agent-store.test.ts
+ * @description Unit test for agent-store
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [test],[unit]
+ */
+
+/**
  * YYC³ AI - Agent Store Tests
  *
  * AI Agent状态管理系统测试

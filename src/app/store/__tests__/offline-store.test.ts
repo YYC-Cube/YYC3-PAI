@@ -1,3 +1,14 @@
+/**
+ * @file offline-store.test.ts
+ * @description Unit test for offline-store
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [test],[unit]
+ */
+
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 
 // Mock localStorage

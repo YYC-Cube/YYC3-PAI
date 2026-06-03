@@ -11,53 +11,58 @@
  * @tags ide,mode,ui,component
  */
 
-import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
-  Eye, Code2, FolderOpen, MessageSquare, Clock, Plus,
-  Users, Terminal as TerminalIcon,
+    Clock,
+    Code2,
+    Eye,
+    FolderOpen, MessageSquare,
+    Plus,
+    Terminal as TerminalIcon,
+    Users,
 } from "lucide-react";
-import { CyberTooltip } from "./CyberTooltip";
+import { AnimatePresence, motion } from "motion/react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../i18n/context";
-import { useModelStore } from "../store/model-store";
-import { useThemeStore } from "../store/theme-store";
-import { useIDEStore, LAYOUT_PRESETS } from "../store/ide-store";
-import { useProjectStore } from "../store/project-store";
+import { activityBus } from "../store/activity-store";
 import { useCollabStore } from "../store/collab-store";
-import { cyberToast } from "./CyberToast";
-import { type CyberEditorHandle } from "./CyberEditor";
-import { PreviewEngine } from "./PreviewEngine";
-import { LivePreview } from "./LivePreview";
-import { PanelDropZone } from "./PanelDropZone";
-import { usePanelDnD, type PanelContentType, PANEL_CONTENT_MAP } from "../store/panel-dnd-store";
-import { motion, AnimatePresence } from "motion/react";
-import { DetachedWindowLayer } from "./DetachedWindow";
-import { useFileStore, fileStore as fileStoreActions } from "../store/file-store";
-import { dbStore as dbStoreActions } from "../store/db-store";
-import { IDEStatusBar } from "./IDEStatusBar";
-import { IDELeftPanel } from "./IDELeftPanel";
-import { IDEHeader } from "./IDEHeader";
-import { IDETerminal } from "./ide/IDETerminal";
-import { filterFileTree } from "./ide/FileTreeNode";
-import { QuickActionsPanel } from "./QuickActionsPanel";
-import { type ActionContext as QAContext } from "../store/quick-actions-store";
-import { pluginStoreActions } from "../store/plugin-store";
 import { cryptoStoreActions } from "../store/crypto-store";
+import { dbStore as dbStoreActions } from "../store/db-store";
+import { fileStore as fileStoreActions, useFileStore } from "../store/file-store";
+import { LAYOUT_PRESETS, useIDEStore } from "../store/ide-store";
+import { useModelStore } from "../store/model-store";
 import { offlineStoreActions } from "../store/offline-store";
+import { PANEL_CONTENT_MAP, usePanelDnD, type PanelContentType } from "../store/panel-dnd-store";
+import { pluginStoreActions } from "../store/plugin-store";
+import { useProjectStore } from "../store/project-store";
+import { type ActionContext as QAContext } from "../store/quick-actions-store";
+import { useThemeStore } from "../store/theme-store";
 import type { AIContext } from "./AIAssistPanel";
 import type { GeneratedFile } from "./CodeGenPanel";
-import { activityBus } from "../store/activity-store";
+import { type CyberEditorHandle } from "./CyberEditor";
+import { cyberToast } from "./CyberToast";
+import { CyberTooltip } from "./CyberTooltip";
+import { DetachedWindowLayer } from "./DetachedWindow";
+import { filterFileTree } from "./ide/FileTreeNode";
+import { IDETerminal } from "./ide/IDETerminal";
+import { IDEHeader } from "./IDEHeader";
+import { IDELeftPanel } from "./IDELeftPanel";
+import { IDEStatusBar } from "./IDEStatusBar";
+import { LivePreview } from "./LivePreview";
+import { PanelDropZone } from "./PanelDropZone";
+import { PreviewEngine } from "./PreviewEngine";
+import { QuickActionsPanel } from "./QuickActionsPanel";
 
 // ── Extracted hooks ──
-import { useOverlayPanels, EVENT_TO_PANEL_KEY } from "./ide/useOverlayPanels";
+import { useAutoSave } from "./ide/useAutoSave";
 import { useIDEKeyboard } from "./ide/useIDEKeyboard";
 import { useIDEPanelResize } from "./ide/useIDEPanelResize";
-import { useAutoSave } from "./ide/useAutoSave";
+import { EVENT_TO_PANEL_KEY, useOverlayPanels } from "./ide/useOverlayPanels";
 
 // ── Extracted sub-components ──
-import { IDELayoutProvider } from "./ide/IDELayoutContext";
 import { IDEChatPanel } from "./ide/IDEChatPanel";
 import { IDECodeEditorPanel } from "./ide/IDECodeEditorPanel";
 import { IDEFileExplorer } from "./ide/IDEFileExplorer";
+import { IDELayoutProvider } from "./ide/IDELayoutContext";
 import { IDEOverlays } from "./ide/IDEOverlays";
 
 // ── Mock data ──
@@ -66,12 +71,13 @@ const MOCK_FILE_TREE = IMPORTED_MOCK_FILE_TREE;
 const SAMPLE_CODE = IMPORTED_SAMPLE_CODE;
 
 // ===== Main IDEMode =====
-export function IDEMode({ onSwitchMode, onOpenSettings, onOpenNotifications, onOpenCommandPalette, onOpenGlobalSearch }: {
+export function IDEMode({ onSwitchMode, onOpenSettings, onOpenNotifications, onOpenCommandPalette, onOpenGlobalSearch, onOpenAudioPanel }: {
   onSwitchMode: () => void;
   onOpenSettings?: () => void;
   onOpenNotifications?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenGlobalSearch?: () => void;
+  onOpenAudioPanel?: () => void;
 }) {
   const { t } = useI18n();
   const { openModelSettings } = useModelStore();
@@ -273,8 +279,8 @@ export function IDEMode({ onSwitchMode, onOpenSettings, onOpenNotifications, onO
     );
     if (contentType === 'file-explorer') return (
       <div className="ml-auto flex items-center gap-1">
-        <CyberTooltip label={t("ide", "recentFilesBtn")}><button className="p-0.5 rounded hover:bg-white/10 transition-all" onClick={() => fileStoreActions.toggleRecentPanel()}><Clock size={10} color={tokens.primaryDim} /></button></CyberTooltip>
-        <CyberTooltip label={t("ide", "newFileBtn")}><button className="p-0.5 rounded hover:bg-white/10 transition-all"
+        <CyberTooltip label={t("ide", "recentFilesBtn")}><button aria-label={t("ide", "recentFilesBtn")} className="p-0.5 rounded hover:bg-white/10 transition-all" onClick={() => fileStoreActions.toggleRecentPanel()}><Clock size={10} color={tokens.primaryDim} /></button></CyberTooltip>
+        <CyberTooltip label={t("ide", "newFileBtn")}><button aria-label={t("ide", "newFileBtn")} className="p-0.5 rounded hover:bg-white/10 transition-all"
           onClick={() => { const name = prompt(t("ide", "newFilePrompt")); if (name) { fileStoreActions.recordOperation("create", name, `Created ${name}`); setSelectedFile(name); cyberToast(`${t("ide", "created")} ${name}`); } }}><Plus size={10} color={tokens.primaryDim} /></button></CyberTooltip>
       </div>
     );
@@ -322,7 +328,7 @@ export function IDEMode({ onSwitchMode, onOpenSettings, onOpenNotifications, onO
           openModelSettings={openModelSettings}
           overlayPanels={overlayPanels}
           onSwitchMode={onSwitchMode} onOpenSettings={onOpenSettings} onOpenNotifications={onOpenNotifications}
-          onOpenCommandPalette={onOpenCommandPalette} onOpenGlobalSearch={onOpenGlobalSearch}
+          onOpenCommandPalette={onOpenCommandPalette} onOpenGlobalSearch={onOpenGlobalSearch} onOpenAudioPanel={onOpenAudioPanel}
           projectStoreOpenModal={() => projectStore.openModal()}
           dbStoreOpenPanel={() => dbStoreActions.openPanel()}
           pluginStoreOpenPanel={() => pluginStoreActions.openPanel()}

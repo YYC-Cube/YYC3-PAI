@@ -25,22 +25,23 @@
  * notes: 需要在 main.tsx 中作为根组件渲染
  */
 
-import { useState, useMemo, useCallback, lazy, Suspense, useEffect, useRef } from "react";
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "../styles/cyberpunk.css";
-import { I18nProvider, useI18n } from "./i18n/context";
-import { ModelStoreProvider, useModelStore } from "./store/model-store";
-import { useThemeStore } from "./store/theme-store";
-import { useShortcutStore } from "./store/shortcut-store";
-import { useSettingsStore } from "./store/settings-store";
-import { CyberpunkBackground } from "./components/CyberpunkBackground";
 import { CyberToaster } from "./components/CyberToast";
+import { CyberpunkBackground } from "./components/CyberpunkBackground";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { PanelSkeleton } from "./components/LoadingSkeleton";
-import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
-import { panelDnDActions } from "./store/panel-dnd-store";
-import { usePerformanceMonitor } from "./hooks/usePerformanceMonitor";
-import { useAutoMonacoPreload, PRELOAD_STRATEGIES } from "./services/monaco-preloader";
 import { MonacoPerformanceMonitor } from "./components/performance";
+import { useKeyboardShortcuts } from "./hooks/useKeyboardShortcuts";
+import { usePerformanceMonitor } from "./hooks/usePerformanceMonitor";
+import { I18nProvider, useI18n } from "./i18n/context";
+import { PRELOAD_STRATEGIES, useAutoMonacoPreload } from "./services/monaco-preloader";
+import { ModelStoreProvider, useModelStore } from "./store/model-store";
+import { panelDnDActions } from "./store/panel-dnd-store";
+import { SelfMediaStoreProvider, useSelfMediaStore } from "./store/self-media-store";
+import { useSettingsStore } from "./store/settings-store";
+import { useShortcutStore } from "./store/shortcut-store";
+import { useThemeStore } from "./store/theme-store";
 
 // ===== Eager imports — main views (critical rendering path) =====
 import { FullscreenMode } from "./components/FullscreenMode";
@@ -62,15 +63,66 @@ const AgentWorkflowPanel = lazy(() => import("./components/AgentWorkflowPanel").
 // P0: File Synchronization Panel (完整性优化 - Week 1)
 const SyncPanel = lazy(() => import("./components/SyncPanel").then(m => ({ default: m.SyncPanel })));
 
-// Type-only import (erased at compile time)
+// Phase 1: Image Generation Panel (自媒体创作引擎)
+const ImageGenPanel = lazy(() => import("./components/ImageGenPanel").then(m => ({ default: m.ImageGenPanel })));
+
+// Phase 1: Self-Media Rich Text Editor (自媒体创作引擎)
+const SelfMediaEditor = lazy(() => import("./components/SelfMediaEditor").then(m => ({ default: m.SelfMediaEditor })));
+const PublishQueue = lazy(() => import("./components/PublishQueue").then(m => ({ default: m.PublishQueue })));
+const TrendingTopics = lazy(() => import("./components/TrendingTopics").then(m => ({ default: m.TrendingTopics })));
+
+// Phase 2: AI Writing Assistant Panel (自媒体创作引擎)
+const AIWritingPanel = lazy(() => import("./components/AIWritingPanel").then(m => ({ default: m.AIWritingPanel })));
+
+// Phase 2: Material Manager (自媒体创作引擎)
+const MaterialManager = lazy(() => import("./components/MaterialManager").then(m => ({ default: m.MaterialManager })));
+
+// Phase 2: Content Preview (自媒体创作引擎)
+const ContentPreview = lazy(() => import("./components/ContentPreview").then(m => ({ default: m.ContentPreview })));
+
+// Phase 2: Content Template Panel (自媒体创作引擎)
+const ContentTemplatePanel = lazy(() => import("./components/ContentTemplatePanel").then(m => ({ default: m.ContentTemplatePanel })));
+
+// Local Model Infrastructure Dashboard
+const LocalModelDashboard = lazy(() => import("./components/LocalModelDashboard").then(m => ({ default: m.LocalModelDashboard })));
+
+// Smart Chat Page
+const ChatPage = lazy(() => import("../components/Chat/ChatPage").then(m => ({ default: m.default })));
+
 import type { PaletteCommand } from "./components/CommandPalette";
+import { initRouter } from "./utils/model-router";
 
 import {
-  Monitor, Sun, Moon, Globe, Settings, Bot,
-  Sparkles, Code2, Terminal, FolderPlus,
-  Keyboard, Bell, Eye, Search, Users,
-  GitBranch, Activity, AlertTriangle, LayoutGrid, Scissors, Clock, Database,
-  Puzzle, Shield, Wifi, Zap, Brain,
+  Activity, AlertTriangle,
+  Bell,
+  Bot,
+  Brain,
+  Clock,
+  Code2,
+  Cpu,
+  Database,
+  Eye,
+  FileText,
+  Flame,
+  FolderPlus,
+  GitBranch,
+  Globe,
+  Image as ImageIcon,
+  Keyboard,
+  LayoutGrid,
+  Monitor,
+  Moon,
+  Puzzle,
+  Scissors,
+  Search,
+  Send,
+  Settings,
+  Shield,
+  Sparkles,
+  Sun,
+  Terminal,
+  Users,
+  Wifi, Zap
 } from "lucide-react";
 
 type AppMode = "fullscreen" | "widget" | "ide";
@@ -93,6 +145,21 @@ function AppContent() {
   const { tokens, isCyberpunk, toggleTheme, setTheme } = useThemeStore();
   const { openModelSettings } = useModelStore();
   const { shortcuts } = useShortcutStore();
+
+  // Self-Media Store (cross-panel communication)
+  const {
+    setPanelActions,
+    templateWritingTopic,
+    pendingPreviewContent,
+    setPendingPreviewContent,
+    setPendingPreviewTitle,
+    setPendingPreviewPlatform,
+    setPendingAIWritingTopic,
+    setPendingAIWritingMode,
+    setPendingPublish,
+    pendingPublishContent,
+    pendingPublishTitle,
+  } = useSelfMediaStore()
 
   // ===== Monaco Editor Ref for Performance Monitoring =====
   const monacoEditorRef = useRef<unknown>(null);
@@ -133,8 +200,94 @@ function AppContent() {
   // P0: File Synchronization Panel state (完整性优化 - Week 1)
   const [syncPanelVisible, setSyncPanelVisible] = useState(false);
 
+  // Phase 1: Image Generation Panel state (自媒体创作引擎)
+  const [imageGenVisible, setImageGenVisible] = useState(false);
+
+  // Phase 1: Self-Media Editor state (自媒体创作引擎)
+  const [selfMediaEditorVisible, setSelfMediaEditorVisible] = useState(false);
+  const [publishQueueVisible, setPublishQueueVisible] = useState(false);
+  const [trendingTopicsVisible, setTrendingTopicsVisible] = useState(false);
+
+  // Local Model Infrastructure Dashboard state
+  const [localModelDashVisible, setLocalModelDashVisible] = useState(false);
+
+  // Phase 2: AI Writing Assistant Panel state (自媒体创作引擎)
+  const [aiWritingVisible, setAIWritingVisible] = useState(false);
+
+  // Phase 2: Material Manager state (自媒体创作引擎)
+  const [materialManagerVisible, setMaterialManagerVisible] = useState(false);
+
+  // Phase 2: Content Preview state (自媒体创作引擎)
+  const [contentPreviewVisible, setContentPreviewVisible] = useState(false);
+
+  // Phase 2: Content Template Panel state (自媒体创作引擎)
+  const [contentTemplateVisible, setContentTemplateVisible] = useState(false);
+  /** 智能聊天页面 */
+  const [chatVisible, setChatVisible] = useState(false);
+
+  // ===== Cross-Panel Communication (自媒体创作引擎全链路) =====
+  // Inject panel actions into SelfMediaStore
+  useEffect(() => {
+    setPanelActions({
+      openAIWriting: (_options?: { mode?: string; topic?: string }) => {
+        if (_options?.topic) setPendingAIWritingTopic(_options.topic);
+        if (_options?.mode) {
+          // Validate mode
+          const validModes = ['title', 'outline', 'seo', 'expand', 'summary', 'rewrite'];
+          if (validModes.includes(_options.mode)) {
+            setPendingAIWritingMode(_options.mode as any);
+          }
+        }
+        setAIWritingVisible(true);
+      },
+      openMaterialManager: () => {
+        setMaterialManagerVisible(true)
+      },
+      openContentPreview: (options?: { content?: string; title?: string; platform?: string }) => {
+        if (options?.content) setPendingPreviewContent(options.content)
+        if (options?.title) setPendingPreviewTitle(options.title)
+        if (options?.platform) setPendingPreviewPlatform(options.platform)
+        setContentPreviewVisible(true)
+      },
+      openEditor: () => {
+        setSelfMediaEditorVisible(true)
+      },
+      openPublishQueue: (_options?: { content?: string; title?: string }) => {
+        setPendingPublish(_options?.content ?? null, _options?.title ?? null)
+        setPublishQueueVisible(true)
+      },
+      openTrendingTopics: () => {
+        setTrendingTopicsVisible(true)
+      },
+    })
+  }, [setPanelActions, setPendingPublish, setPendingPreviewContent, setPendingPreviewTitle, setPendingPreviewPlatform, setPendingAIWritingTopic, setPendingAIWritingMode])
+
+  // Auto-open AI writing panel when template topic is set
+  useEffect(() => {
+    if (templateWritingTopic) {
+      setAIWritingVisible(true)
+    }
+  }, [templateWritingTopic])
+
+  // Auto-open content preview when pending content is set
+  useEffect(() => {
+    if (pendingPreviewContent) {
+      setContentPreviewVisible(true)
+    }
+  }, [pendingPreviewContent])
+
+  // Auto-open publish queue when pending publish content is set
+  useEffect(() => {
+    if (pendingPublishContent) {
+      setPublishQueueVisible(true)
+    }
+  }, [pendingPublishContent])
+
   // ===== Shared Layout URL Detection (对齐 Guidelines: Layout Sharing) =====
   useEffect(() => {
+    // Initialize the local model router on mount
+    initRouter().catch(() => { })
+
     try {
       const hash = window.location.hash;
       if (hash.startsWith('#yyc3-layout=')) {
@@ -351,6 +504,47 @@ function AppContent() {
       icon: Wifi, shortcut: '⌘ Shift O',
       action: () => { setMode('ide'); window.dispatchEvent(new CustomEvent('yyc3:open-panel', { detail: 'offline' })) },
     },
+    {
+      id: 'open-image-gen', labelKey: '图像生成', categoryKey: 'catAI',
+      icon: ImageIcon, shortcut: '⌘ ⇧ G',
+      action: () => setImageGenVisible(true),
+    },
+    {
+      id: 'open-self-media-editor', labelKey: '内容编辑器', categoryKey: 'catAI',
+      icon: FileText, shortcut: '⌘ ⇧ E',
+      action: () => setSelfMediaEditorVisible(true),
+    },
+    // Phase 2: Self-Media Creation Engine Panels
+    {
+      id: 'open-ai-writing', labelKey: 'AI写作助手', categoryKey: 'catAI',
+      icon: Sparkles, shortcut: '⌘ ⇧ W',
+      action: () => setAIWritingVisible(true),
+    },
+    {
+      id: 'open-material-manager', labelKey: '素材管理器', categoryKey: 'catTools',
+      icon: ImageIcon, shortcut: '⌘ ⇧ U',
+      action: () => setMaterialManagerVisible(true),
+    },
+    {
+      id: 'open-content-preview', labelKey: '内容预览', categoryKey: 'catTools',
+      icon: Eye, shortcut: '⌘ ⇧ P',
+      action: () => setContentPreviewVisible(true),
+    },
+    {
+      id: 'open-publish-queue', labelKey: '多平台发布', categoryKey: 'catTools',
+      icon: Send, shortcut: '',
+      action: () => setPublishQueueVisible(true),
+    },
+    {
+      id: 'open-trending-topics', labelKey: '热点选题', categoryKey: 'catTools',
+      icon: Flame, shortcut: '',
+      action: () => setTrendingTopicsVisible(true),
+    },
+    {
+      id: 'open-local-model-dash', labelKey: '本地模型基础设施', categoryKey: 'catAI',
+      icon: Cpu, shortcut: '⌘ ⇧ M',
+      action: () => setLocalModelDashVisible(true),
+    },
   ], [isCyberpunk, toggleTheme, setTheme, toggleLocale, openModelSettings, shortcuts, openGlobalSearch]);
 
   // ===== Keyboard shortcuts — use custom bindings from store =====
@@ -379,6 +573,15 @@ function AppContent() {
         else if (notificationsVisible) setNotificationsVisible(false)
         else if (cheatSheetVisible) setCheatSheetVisible(false)
         else if (agentWorkflowVisible) setAgentWorkflowVisible(false)
+        else if (selfMediaEditorVisible) setSelfMediaEditorVisible(false)
+        else if (aiWritingVisible) setAIWritingVisible(false)
+        else if (materialManagerVisible) setMaterialManagerVisible(false)
+        else if (contentPreviewVisible) setContentPreviewVisible(false)
+        else if (publishQueueVisible) setPublishQueueVisible(false)
+        else if (trendingTopicsVisible) setTrendingTopicsVisible(false)
+        else if (imageGenVisible) setImageGenVisible(false)
+        else if (syncPanelVisible) setSyncPanelVisible(false)
+        else if (localModelDashVisible) setLocalModelDashVisible(false)
       }, preventDefault: false
     },
   ]);
@@ -403,6 +606,12 @@ function AppContent() {
           onOpenNotifications={() => setNotificationsVisible(true)}
           onOpenCommandPalette={() => setCommandPaletteVisible(true)}
           onOpenGlobalSearch={openGlobalSearch}
+          onOpenAIWriting={() => setAIWritingVisible(true)}
+          onOpenContentTemplate={() => setContentTemplateVisible(true)}
+          onOpenMaterialManager={() => setMaterialManagerVisible(true)}
+          onOpenPublishQueue={() => setPublishQueueVisible(true)}
+          onOpenTrendingTopics={() => setTrendingTopicsVisible(true)}
+          onOpenChat={() => setChatVisible(true)}
         />
       ) : mode === "ide" ? (
         <Suspense fallback={<PanelSkeleton />}>
@@ -412,6 +621,13 @@ function AppContent() {
             onOpenNotifications={() => setNotificationsVisible(true)}
             onOpenCommandPalette={() => setCommandPaletteVisible(true)}
             onOpenGlobalSearch={openGlobalSearch}
+            onOpenAudioPanel={() => {
+              setSettingsVisible(true)
+              setTimeout(() => {
+                const settingsTab = document.querySelector('[data-settings-tab="audio"]') as HTMLElement
+                if (settingsTab) settingsTab.click()
+              }, 100)
+            }}
           />
         </Suspense>
       ) : (
@@ -528,6 +744,70 @@ function AppContent() {
       <Suspense fallback={<PanelSkeleton />}>
         <SyncPanel isOpen={syncPanelVisible} onClose={() => setSyncPanelVisible(false)} />
       </Suspense>
+
+      {/* Phase 1: Image Generation Panel (自媒体创作引擎) */}
+      <Suspense fallback={<PanelSkeleton />}>
+        <ImageGenPanel visible={imageGenVisible} onClose={() => setImageGenVisible(false)} />
+      </Suspense>
+
+      {/* Phase 1: Self-Media Content Editor (自媒体创作引擎) */}
+      <Suspense fallback={<PanelSkeleton />}>
+        <SelfMediaEditor visible={selfMediaEditorVisible} onClose={() => setSelfMediaEditorVisible(false)} />
+        <PublishQueue
+          visible={publishQueueVisible}
+          onClose={() => {
+            setPublishQueueVisible(false)
+            setPendingPublish(null, null)
+          }}
+          initialContent={pendingPublishContent || undefined}
+          initialTitle={pendingPublishTitle || undefined}
+        />
+        <TrendingTopics visible={trendingTopicsVisible} onClose={() => setTrendingTopicsVisible(false)} />
+        {localModelDashVisible && (
+          <LocalModelDashboard onClose={() => setLocalModelDashVisible(false)} />
+        )}
+      </Suspense>
+
+      {/* Phase 2: AI Writing Assistant (自媒体创作引擎) */}
+      <Suspense fallback={<PanelSkeleton />}>
+        <AIWritingPanel visible={aiWritingVisible} onClose={() => setAIWritingVisible(false)} />
+      </Suspense>
+
+      {/* Phase 3: Smart Chat Page (智能聊天) */}
+      {chatVisible && (
+        <div
+          className="fixed inset-0 z-[9999]"
+          style={{ background: tokens.background }}
+        >
+          <ChatPage />
+          <button
+            onClick={() => setChatVisible(false)}
+            className="absolute top-4 right-4 z-[10000] px-3 py-1.5 rounded text-xs font-semibold transition-all hover:opacity-80"
+            style={{
+              background: tokens.error,
+              color: tokens.background,
+              fontFamily: tokens.fontMono,
+            }}
+          >
+            关闭聊天
+          </button>
+        </div>
+      )}
+
+      {/* Phase 2: Material Manager (自媒体创作引擎) */}
+      <Suspense fallback={<PanelSkeleton />}>
+        <MaterialManager visible={materialManagerVisible} onClose={() => setMaterialManagerVisible(false)} />
+      </Suspense>
+
+      {/* Phase 2: Content Preview (自媒体创作引擎) */}
+      <Suspense fallback={<PanelSkeleton />}>
+        <ContentPreview visible={contentPreviewVisible} onClose={() => setContentPreviewVisible(false)} />
+      </Suspense>
+
+      {/* Phase 2: Content Template Panel (自媒体创作引擎) */}
+      <Suspense fallback={<PanelSkeleton />}>
+        <ContentTemplatePanel visible={contentTemplateVisible} onClose={() => setContentTemplateVisible(false)} />
+      </Suspense>
     </div>
   );
 }
@@ -537,7 +817,9 @@ export default function App() {
     <ErrorBoundary>
       <I18nProvider>
         <ModelStoreProvider>
-          <AppContent />
+          <SelfMediaStoreProvider>
+            <AppContent />
+          </SelfMediaStoreProvider>
         </ModelStoreProvider>
       </I18nProvider>
     </ErrorBoundary>

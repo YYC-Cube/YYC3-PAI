@@ -10,21 +10,48 @@
  * @tags component,header,ide,ui
  */
 
-import { CyberTooltip } from "./CyberTooltip";
-import { GlitchText } from "./GlitchText";
-import { ThemeSwitcher } from "./ThemeSwitcher";
-import { LangSwitcher } from "./LangSwitcher";
+import {
+    Activity, AlertTriangle,
+    Bell,
+    Bot,
+    ChevronLeft,
+    Clock,
+    Code2,
+    Command,
+    Database,
+    Eye,
+    FileCode,
+    FileText,
+    FolderOpen,
+    GitBranch,
+    Github,
+    Layers,
+    LayoutGrid,
+    Maximize,
+    Minimize2,
+    MoreHorizontal,
+    Plus,
+    Puzzle,
+    Rocket,
+    Scissors,
+    Search,
+    Settings,
+    Share2,
+    Shield,
+    Sparkles,
+    Terminal as TerminalIcon,
+    User,
+    Users,
+} from "lucide-react";
 import { useI18n } from "../i18n/context";
 import { useThemeStore } from "../store/theme-store";
+import { MiniAudioPlayer } from "./audio/MiniAudioPlayer";
 import { cyberToast } from "./CyberToast";
+import { CyberTooltip } from "./CyberTooltip";
+import { GlitchText } from "./GlitchText";
+import { LangSwitcher } from "./LangSwitcher";
+import { ThemeSwitcher } from "./ThemeSwitcher";
 import logoImg from "/yyc3-icons/macOS/32.png";
-import {
-  Bot, Sparkles, FileCode, Users, GitBranch, Activity, AlertTriangle,
-  LayoutGrid, Scissors, Clock, Plus, Command, ChevronLeft, Maximize,
-  Minimize2, Eye, Code2, Search, Database, Puzzle, Shield, MoreHorizontal,
-  FolderOpen, Settings, Github, Share2, Rocket, Bell, User, FileText,
-  Terminal as TerminalIcon, Layers,
-} from "lucide-react";
 
 import type { OverlayPanelsAPI } from "./ide/useOverlayPanels";
 
@@ -49,6 +76,7 @@ export interface IDEHeaderProps {
   onOpenNotifications?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenGlobalSearch?: () => void;
+  onOpenAudioPanel?: () => void;
   /** Store actions */
   projectStoreOpenModal: () => void;
   dbStoreOpenPanel: () => void;
@@ -61,7 +89,7 @@ export function IDEHeader({
   fullscreenPreview, setFullscreenPreview,
   terminalVisible, setTerminalVisible, setTerminalExpanded,
   openModelSettings, overlayPanels,
-  onSwitchMode, onOpenSettings, onOpenNotifications, onOpenCommandPalette, onOpenGlobalSearch,
+  onSwitchMode, onOpenSettings, onOpenNotifications, onOpenCommandPalette, onOpenGlobalSearch, onOpenAudioPanel,
   projectStoreOpenModal, dbStoreOpenPanel, pluginStoreOpenPanel, cryptoStoreOpenPanel,
 }: IDEHeaderProps) {
   const { t } = useI18n();
@@ -106,14 +134,17 @@ export function IDEHeader({
             { icon: Bell, label: t("ide", "notifications"), action: () => onOpenNotifications?.() },
           ].map((item, i) => (
             <CyberTooltip key={i} label={item.label}>
-              <button onClick={item.action} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: "none", background: "transparent" }}>
+              <button onClick={item.action} aria-label={item.label} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: "none", background: "transparent" }}>
                 <item.icon size={14} />
               </button>
             </CyberTooltip>
           ))}
+          {/* Mini Audio Player */}
+          <div style={{ width: 1, height: 16, background: tokens.border, margin: '0 4px' }} />
+          <MiniAudioPlayer onOpenFullPlayer={onOpenAudioPanel} />
           {/* User avatar */}
           <CyberTooltip label={t("ide", "userProfile")}>
-            <button onClick={() => cyberToast(t("notify", "profileOpened"))} className="flex items-center gap-1.5 ml-1 p-1 rounded transition-all hover:opacity-80">
+            <button onClick={() => cyberToast(t("notify", "profileOpened"))} aria-label={t("ide", "userProfile")} className="flex items-center gap-1.5 ml-1 p-1 rounded transition-all hover:opacity-80">
               <div className="w-6 h-6 rounded-full flex items-center justify-center" style={{ background: tokens.primaryGlow, border: `1px solid ${tokens.cardBorder}` }}>
                 <User size={12} color={tokens.primary} />
               </div>
@@ -144,7 +175,7 @@ export function IDEHeader({
             { icon: Command, label: "⌘K", action: () => onOpenCommandPalette?.() },
           ].map((item, i) => (
             <CyberTooltip key={i} label={item.label}>
-              <button onClick={item.action} className="p-1.5 rounded transition-all hover:bg-white/5" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+              <button onClick={item.action} aria-label={item.label} className="p-1.5 rounded transition-all hover:bg-white/5" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
                 <item.icon size={14} />
               </button>
             </CyberTooltip>
@@ -154,7 +185,7 @@ export function IDEHeader({
         {/* Center: View switchers */}
         <div className="flex items-center gap-1">
           <CyberTooltip label={t("ide", "goBack")}>
-            <button onClick={onSwitchMode} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={onSwitchMode} aria-label={t("ide", "goBack")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <ChevronLeft size={14} />
             </button>
           </CyberTooltip>
@@ -165,6 +196,7 @@ export function IDEHeader({
                 setFullscreenPreview(!fullscreenPreview);
                 if (!fullscreenPreview) cyberToast(t("notify", "fullscreenEntered"));
               }}
+              aria-label={t("ide", "fullscreen")}
               className="p-1.5 rounded transition-all"
               style={{
                 color: fullscreenPreview ? tokens.background : tokens.primary,
@@ -186,6 +218,7 @@ export function IDEHeader({
               <CyberTooltip key={item.mode} label={item.label}>
                 <button
                   onClick={() => setViewMode(item.mode)}
+                  aria-label={item.label}
                   className="p-1.5 rounded transition-all"
                   style={{
                     color: isActive ? tokens.background : tokens.primary,
@@ -203,27 +236,27 @@ export function IDEHeader({
           <div style={{ width: 1, height: 18, background: tokens.border, margin: "0 4px" }} />
 
           <CyberTooltip label={t("ide", "search")}>
-            <button onClick={() => onOpenGlobalSearch?.()} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={() => onOpenGlobalSearch?.()} aria-label={t("ide", "search")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <Search size={14} />
             </button>
           </CyberTooltip>
           <CyberTooltip label={t("panels", "database")}>
-            <button onClick={dbStoreOpenPanel} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={dbStoreOpenPanel} aria-label={t("panels", "database")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <Database size={14} />
             </button>
           </CyberTooltip>
           <CyberTooltip label={t("panels", "plugins")}>
-            <button onClick={pluginStoreOpenPanel} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={pluginStoreOpenPanel} aria-label={t("panels", "plugins")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <Puzzle size={14} />
             </button>
           </CyberTooltip>
           <CyberTooltip label={t("panels", "security")}>
-            <button onClick={cryptoStoreOpenPanel} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={cryptoStoreOpenPanel} aria-label={t("panels", "security")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <Shield size={14} />
             </button>
           </CyberTooltip>
           <CyberTooltip label={t("ide", "more")}>
-            <button onClick={() => onOpenCommandPalette?.()} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={() => onOpenCommandPalette?.()} aria-label={t("ide", "more")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <MoreHorizontal size={14} />
             </button>
           </CyberTooltip>
@@ -234,6 +267,7 @@ export function IDEHeader({
           <CyberTooltip label={t("ide", "fileManager")}>
             <button
               onClick={() => { if (viewMode !== "edit") setViewMode("edit"); cyberToast(t("notify", "fileManagerOpened")); }}
+              aria-label={t("ide", "fileManager")}
               className="p-1.5 rounded transition-all"
               style={{
                 color: viewMode === "edit" ? tokens.background : tokens.primary,
@@ -249,6 +283,7 @@ export function IDEHeader({
               onClick={() => {
                 if (!terminalVisible) { setTerminalVisible(true); setTerminalExpanded(false); } else { setTerminalVisible(false); }
               }}
+              aria-label={t("ide", "terminal")}
               className="p-1.5 rounded transition-all"
               style={{
                 color: terminalVisible ? tokens.background : tokens.primary,
@@ -260,12 +295,12 @@ export function IDEHeader({
             </button>
           </CyberTooltip>
           <CyberTooltip label={t("ide", "notes")}>
-            <button onClick={() => show("activityLog")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={() => show("activityLog")} aria-label={t("ide", "notes")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <FileText size={14} />
             </button>
           </CyberTooltip>
           <CyberTooltip label={t("panels", "multiInstance") || "Multi-Instance"}>
-            <button onClick={() => show("multiInstance")} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
+            <button onClick={() => show("multiInstance")} aria-label={t("panels", "multiInstance") || "Multi-Instance"} className="p-1.5 rounded transition-all" style={{ color: tokens.primary, border: `1px solid ${tokens.border}` }}>
               <Layers size={14} />
             </button>
           </CyberTooltip>

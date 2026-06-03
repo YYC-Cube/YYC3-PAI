@@ -1,16 +1,15 @@
 /**
  * @file storage-monitor.ts
- * @description 存储监控和管理工具
+ * @description 存储监控和管理工具 v2.0.0 - 统一配额监控，集成 IndexedDB 服务
  * @author YanYuCloudCube Team <admin@0379.email>
- * @version v1.0.0
+ * @version v2.0.0
  * @created 2026-04-07
- * @updated 2026-04-07
+ * @updated 2026-06-03
  * @status stable
  * @license MIT
- * @copyright Copyright (c) 2026 YanYuCloudCube Team
- * @tags storage,monitor,management
  */
 
+import { indexedDBService } from '../services/indexeddb-service'
 import { createLogger } from './logger'
 
 const logger = createLogger('storage-monitor')
@@ -47,7 +46,7 @@ export class StorageMonitor {
   private static instance: StorageMonitor
   private alertCallbacks: Set<AlertCallback> = new Set()
   private thresholds: Map<StorageType, number> = new Map()
-  private monitoringInterval: number | null = null
+  private monitoringInterval: ReturnType<typeof setInterval> | null = null
   private memoryCacheSize: number = 0
   private memoryCacheItems: number = 0
 
@@ -92,66 +91,31 @@ export class StorageMonitor {
   }
 
   async getIndexedDBUsage(): Promise<StorageUsage> {
-    return new Promise((resolve) => {
-      let used = 0
-      let items = 0
+    try {
+      const storeNames = indexedDBService.getStoreNames()
+      let totalItems = 0
 
-      try {
-        const request = indexedDB.open('yyc3-ai-pai-db', 3)
-
-        request.onsuccess = () => {
-          const db = request.result
-          const storeNames = Array.from(db.objectStoreNames)
-
-          if (storeNames.length === 0) {
-            resolve({ used: 0, total: 500 * 1024 * 1024, percentage: 0, items: 0 })
-            return
-          }
-
-          const transaction = db.transaction(storeNames, 'readonly')
-          let completed = 0
-
-          storeNames.forEach((storeName) => {
-            const store = transaction.objectStore(storeName)
-            const countRequest = store.count()
-
-            countRequest.onsuccess = () => {
-              items += countRequest.result
-              completed++
-
-              if (completed === storeNames.length) {
-                used = items * 1024
-                resolve({
-                  used,
-                  total: 500 * 1024 * 1024,
-                  percentage: (used / (500 * 1024 * 1024)) * 100,
-                  items,
-                })
-              }
-            }
-
-            countRequest.onerror = () => {
-              completed++
-              if (completed === storeNames.length) {
-                resolve({
-                  used,
-                  total: 500 * 1024 * 1024,
-                  percentage: (used / (500 * 1024 * 1024)) * 100,
-                  items,
-                })
-              }
-            }
-          })
+      for (const storeName of storeNames) {
+        try {
+          const records = await indexedDBService.getAll(storeName)
+          totalItems += records.length
+        } catch {
+          // store might not exist yet
         }
-
-        request.onerror = () => {
-          resolve({ used: 0, total: 500 * 1024 * 1024, percentage: 0, items: 0 })
-        }
-      } catch (error) {
-        logger.error('[StorageMonitor] Failed to get IndexedDB usage', error)
-        resolve({ used: 0, total: 500 * 1024 * 1024, percentage: 0, items: 0 })
       }
-    })
+
+      // 估算: 每条记录平均 ~2KB
+      const estimatedBytes = totalItems * 2048
+      return {
+        used: estimatedBytes,
+        total: 500 * 1024 * 1024,
+        percentage: (estimatedBytes / (500 * 1024 * 1024)) * 100,
+        items: totalItems,
+      }
+    } catch (error) {
+      logger.error('[StorageMonitor] Failed to get IndexedDB usage', error)
+      return { used: 0, total: 500 * 1024 * 1024, percentage: 0, items: 0 }
+    }
   }
 
   getMemoryCacheUsage(): StorageUsage {

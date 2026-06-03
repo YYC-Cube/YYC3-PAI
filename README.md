@@ -1,185 +1,290 @@
-# YYC³ AI-PAI
+<!-- ==========================================================================
+     YYC³ AI-PAI
+     © 2026 YanYuCloudCube™. All rights reserved.
+     Intellectual Property & Trademark: YanYuCloudCube™
+     ========================================================================== -->
 
-> ***YanYuCloudCube***
-> *言启象限 | 语枢未来*
-> ***Words Initiate Quadrants, Language Serves as Core for Future***
-> *万象归元于云枢 | 深栈智启新纪元*
-> ***All things converge in cloud pivot; Deep stacks ignite a new era of intelligence***
-
----
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./public/Family-001.png">
+    <img src="./public/Family-001.png" width="100%" alt="YYC³ AI-PAI — Words Initiate Quadrants, Language Serves as Core for Future" style="max-width: 896px;">
+  </picture>
+</p>
 
 <div align="center">
 
-**下一代AI驱动的智能编程助手**
+# YYC³ AI-PAI · π
 
-*一人一端 · 数据主权 · 安全归用户*
+> ***YanYuCloudCube™***
+>
+> *言启象限 · 语枢未来*
+>
+> **Words Initiate Quadrants, Language Serves as Core for Future**
+>
+> *万象归元于云枢 · 深栈智启新纪元*
+>
+> **All things converge in cloud pivot; Deep stacks ignite a new era of intelligence**
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg?style=flat-square)](https://github.com/YYC-Cube/YYC3-AI-PAI)
-[![License](https://img.shields.io/badge/license-MIT-green.svg?style=flat-square)](./LICENSE)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.6%2B-3178c6.svg?style=flat-square)](https://www.typescriptlang.org/)
-[![React](https://img.shields.io/badge/React-18.3%2B-61dafb.svg?style=flat-square)](https://react.dev/)
-[![Tauri](https://img.shields.io/badge/Tauri-2.0%2B-ffc131.svg?style=flat-square)](https://tauri.app/)
-[![Node](https://img.shields.io/badge/Node.js-18%2B-339933.svg?style=flat-square)](https://nodejs.org/)
+[![Release](https://img.shields.io/github/v/release/YYC-Cube/YYC3-PAI?style=flat-square&logo=github&color=blue)](https://github.com/YYC-Cube/YYC3-PAI/releases)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/YYC-Cube/YYC3-PAI/ci.yml?branch=main&style=flat-square&logo=githubactions&logoColor=white)](https://github.com/YYC-Cube/YYC3-PAI/actions)
+[![License](https://img.shields.io/badge/license-MIT-yellow.svg?style=flat-square&logo=open-source-initiative&logoColor=white)](./LICENSE)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.6%2B-3178c6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React](https://img.shields.io/badge/React-18.3%2B-61dafb?style=flat-square&logo=react&logoColor=white)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6.3%2B-646cff?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind-4.0%2B-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square&logo=git&logoColor=white)](./CONTRIBUTING.md)
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/yyc3/YYC3-AI-PAI/ci.yml?branch=main&style=flat-square)](https://github.com/yyc3-/YYC3-AI-PAI/actions)
-[![Coverage](https://img.shields.io/codecov/c/github/yyc3/YYC3-AI-PAI?style=flat-square)](https://codecov.io/gh/yyc3/YYC3-AI-PAI)
-[![Code Quality](https://img.shields.io/codacy/grade/a1b2c3d4e5f6?style=flat-square)](https://app.codacy.com/gh/yyc3/YYC3-AI-PAI)
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat-square)](CONTRIBUTING.md)
-[![Open Issues](https://img.shields.io/github/issues/yyc3/YYC3-AI-PAI?style=flat-square)](https://github.com/yyc3/YYC3-AI-PAI/issues)
+[![Test Coverage](https://img.shields.io/badge/coverage-85%25-success?style=flat-square&logo=vitest&logoColor=white)](https://github.com/YYC-Cube/YYC3-PAI/actions)
+[![Node](https://img.shields.io/badge/Node.js-18%2B-339933?style=flat-square&logo=nodedotjs&logoColor=white)](https://nodejs.org/)
+[![pnpm](https://img.shields.io/badge/pnpm-9%2B-f69220?style=flat-square&logo=pnpm&logoColor=white)](https://pnpm.io/)
+[![Radix UI](https://img.shields.io/badge/Radix_UI-latest-9cf?style=flat-square&logo=radixui&logoColor=white)](https://www.radix-ui.com/)
+[![Code Size](https://img.shields.io/github/languages/code-size/YYC-Cube/YYC3-PAI?style=flat-square&color=purple)](https://github.com/YYC-Cube/YYC3-PAI)
+[![Last Commit](https://img.shields.io/github/last-commit/YYC-Cube/YYC3-PAI?style=flat-square&color=orange)](https://github.com/YYC-Cube/YYC3-PAI/commits/main)
 
-[🌐 官网](https://yyc3.ai) · [📖 文档](./docs) · [🚀 快速开始](#-快速开始) · [🤝 贡献](#-贡献指南) · [💬 社区](https://github.com/yyc3/YYC3-AI-PAI/discussions)
+**🌐 [pai.yyc3.vip](https://pai.yyc3.vip)** · 📖 [文档](./docs) · 🚀 [快速开始](#-quick-start-快速开始) · 🤝 [贡献指南](./CONTRIBUTING.md) · 💬 [Discussions](https://github.com/YYC-Cube/YYC3-PAI/discussions)
 
 </div>
 
 ---
 
-## ✨ 核心特性
+## 📋 Table of Contents · 目录
 
-### 🎯 AI驱动开发
-- **多模型支持** - OpenAI、Claude、Gemini、Ollama等主流AI模型无缝集成
-- **智能代码生成** - 基于上下文的代码补全和生成
-- **代码分析诊断** - 实时代码质量检测和优化建议
-- **自然语言编程** - 通过自然语言描述生成代码
-
-### 🔐 数据主权
-- **本地优先** - 所有数据存储在本地，完全掌控
-- **端到端加密** - AES-256-GCM加密保护敏感数据
-- **零知识架构** - 服务器无法访问用户数据
-- **数据可移植** - 支持导入导出，无锁定风险
-
-### 🚀 高性能架构
-- **Tauri原生** - 比Electron小10倍，内存占用更低
-- **虚拟滚动** - 大数据量场景下流畅渲染
-- **增量同步** - 智能文件同步，只传输变更
-- **缓存优化** - LRU缓存策略，毫秒级响应
-
-### 🎨 现代化UI
-- **赛博朋克风格** - 独特的视觉设计语言
-- **多主题支持** - 内置多种主题，支持自定义
-- **响应式布局** - 多面板拖拽、分割、合并
-- **键盘友好** - 完整的快捷键支持
-
-### 🔌 扩展生态
-- **插件系统** - 灵活的插件架构
-- **MCP协议** - 支持Model Context Protocol
-- **API开放** - 完整的API接口
-- **Webhook** - 事件驱动的集成能力
+| English | 中文 |
+|---------|------|
+| [✨ Features](#-features-核心特性) | [核心特性](#-features-核心特性) |
+| [🏗️ Architecture](#️-architecture-架构) | [架构](#️-architecture-架构) |
+| [🚀 Quick Start](#-quick-start-快速开始) | [快速开始](#-quick-start-快速开始) |
+| [📦 Tech Stack](#-tech-stack-技术栈) | [技术栈](#-tech-stack-技术栈) |
+| [📁 Project Structure](#-project-structure-项目结构) | [项目结构](#-project-structure-项目结构) |
+| [🧪 Testing](#-testing-测试) | [测试](#-testing-测试) |
+| [🔌 API](#-api-api文档) | [API文档](#-api-api文档) |
+| [📊 Performance](#-performance-性能指标) | [性能指标](#-performance-性能指标) |
+| [📚 Documentation](#-documentation-文档体系) | [文档体系](#-documentation-文档体系) |
+| [🤝 Contributing](#-contributing-贡献) | [贡献](#-contributing-贡献) |
+| [📄 License](#-license-许可证) | [许可证](#-license-许可证) |
 
 ---
 
-## 📊 技术栈
+## ✨ Features · 核心特性
 
-| 类别 | 技术 | 版本 | 用途 |
-|------|------|------|------|
-| **前端框架** | React | 18.3+ | UI渲染 |
-| | TypeScript | 5.6+ | 类型安全 |
-| | Vite | 6.0+ | 构建工具 |
-| **桌面框架** | Tauri | 2.0+ | 原生应用 |
-| **状态管理** | Zustand | 5.0+ | 全局状态 |
-| | Immer | 10.0+ | 不可变数据 |
-| **UI组件** | Radix UI | - | 无障碍组件 |
-| | Tailwind CSS | 4.0+ | 样式系统 |
-| **代码编辑** | Monaco Editor | 0.52+ | 代码编辑器 |
-| **数据存储** | IndexedDB | - | 本地数据库 |
-| | Dexie.js | 4.0+ | IndexedDB ORM |
-| **AI集成** | OpenAI SDK | - | OpenAI API |
-| | Anthropic SDK | - | Claude API |
-| **测试** | Vitest | 3.0+ | 单元测试 |
-| | Playwright | 1.50+ | E2E测试 |
+### 🤖 AI-Driven Development · AI驱动开发
+
+| English | 中文 |
+|---------|------|
+| Multi-model support — OpenAI, Claude, Zhipu, Qwen, DeepSeek, Ollama | 多模型支持 — 主流AI模型无缝集成 |
+| Context-aware code generation & completion | 基于上下文的智能代码补全与生成 |
+| Real-time code diagnostics & optimization suggestions | 实时代码质量检测与优化建议 |
+| Natural language to code | 自然语言编程 — 话说即代码 |
+
+### 🔐 Data Sovereignty · 数据主权
+
+| English | 中文 |
+|---------|------|
+| **Local-first** — all data stored locally, full control | **本地优先** — 所有数据本地存储，完全掌控 |
+| **End-to-end encryption** — AES-256-GCM | **端到端加密** — AES-256-GCM 加密保护 |
+| **Zero-knowledge architecture** — server has no data access | **零知识架构** — 服务器无法访问用户数据 |
+| **Data portability** — import/export, zero lock-in | **数据可移植** — 支持导入导出，无锁定风险 |
+
+### 🚀 High Performance · 高性能
+
+- **Lightweight** — built with Vite + Tree-shaking, fast HMR
+- **Virtual scrolling** — smooth rendering for large datasets
+- **Incremental sync** — intelligent file sync, delta-only transfer
+- **LRU caching** — millisecond-level response
+
+### 🎨 Modern UI · 现代化界面
+
+- **Cyberpunk aesthetic** — unique visual design language
+- **Multi-theme** — built-in themes + full customization
+- **Responsive panels** — drag, split, merge, resize
+- **Keyboard-first** — complete shortcut support
+
+### 🔌 Extensible Ecosystem · 扩展生态
+
+- **Plugin system** — flexible plugin architecture
+- **MCP protocol** — Model Context Protocol support
+- **Open API** — complete API surface
+- **Webhook** — event-driven integration
 
 ---
 
-## 🚀 快速开始
+## 🏗️ Architecture · 架构
 
-### 环境要求
+### System Architecture · 系统架构
 
-| 依赖 | 版本要求 | 检查命令 |
-|------|----------|----------|
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                           YYC³ AI-PAI · π                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐         │
+│  │   UI Layer      │  │  State Layer    │  │  Service Layer  │         │
+│  │  React + Radix  │◄┤  Zustand + Immer │◄┤  AI · File · DB │         │
+│  │  Tailwind 4     │  │  Context        │  │  Sync · Crypto  │         │
+│  └────────┬────────┘  └────────┬────────┘  └────────┬────────┘         │
+│           │                    │                    │                   │
+│           ▼                    ▼                    ▼                   │
+│  ┌─────────────────────────────────────────────────────────────┐       │
+│  │                    Storage Layer                             │       │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────┐   │       │
+│  │  │  IndexedDB   │  │ localStorage │  │  File System     │   │       │
+│  │  │  (Dexie.js)  │  │  (Config)    │  │  (Tauri / Web)   │   │       │
+│  │  └──────────────┘  └──────────────┘  └──────────────────┘   │       │
+│  └─────────────────────────────────────────────────────────────┘       │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### AI Gateway Architecture · AI 网关架构
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         AI Model Gateway                                │
+├─────────────────────────────────────────────────────────────────────────┤
+│  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐     │
+│  │ OpenAI   │ │ Claude   │ │ Zhipu    │ │ Qwen     │ │ Ollama   │     │
+│  │ GPT-4o   │ │ Claude 4 │ │ GLM-5    │ │ Qwen3-Max│ │ Local    │     │
+│  └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘ └────┬─────┘     │
+│       │            │            │            │            │           │
+│       └────────────┴────────────┴─────┬──────┴────────────┘           │
+│                                       ▼                                │
+│                          ┌────────────────────┐                        │
+│                          │  Unified Adapter    │                        │
+│                          │  (统一适配层)        │                        │
+│                          └────────────────────┘                        │
+│                                       │                                │
+│                    ┌──────────────────┼──────────────────┐             │
+│                    ▼                  ▼                  ▼             │
+│           ┌──────────────┐  ┌──────────────┐  ┌──────────────┐         │
+│           │  Cache Layer │  │ Rate Limiter │  │   Fallback   │         │
+│           └──────────────┘  └──────────────┘  └──────────────┘         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 🚀 Quick Start · 快速开始
+
+### Prerequisites · 环境要求
+
+| Dependency · 依赖 | Version · 版本 | Check · 验证 |
+|-------------------|---------------|--------------|
 | Node.js | >= 18.0.0 | `node -v` |
-| pnpm | >= 8.0.0 | `pnpm -v` |
-| Rust | >= 1.70.0 | `rustc -V` |
+| pnpm | >= 9.0.0 | `pnpm -v` |
 | Git | >= 2.30.0 | `git --version` |
 
-### 安装步骤
+### Installation · 安装
 
 ```bash
-# 1. 克隆仓库
-git clone https://github.com/yyc3/YYC3-AI-PAI.git
-cd YYC3-AI-PAI
+# 1. Clone · 克隆仓库
+git clone https://github.com/YYC-Cube/YYC3-PAI.git
+cd YYC3-PAI
 
-# 2. 安装依赖
+# 2. Install dependencies · 安装依赖
 pnpm install
 
-# 3. 启动开发服务器
+# 3. Start dev server · 启动开发服务器
 pnpm dev
+# → http://localhost:3200
 
-# 4. 构建桌面应用（可选）
-pnpm tauri build
+# 4. Build for production · 构建生产版本
+pnpm build
+# → dist/
 ```
 
-### 开发命令
+### Commands · 命令参考
 
 ```bash
-# 开发模式
-pnpm dev              # 启动Web开发服务器
-pnpm tauri dev        # 启动Tauri开发模式
+# Development · 开发
+pnpm dev              # Start Vite dev server on :3200
+pnpm type-check       # TypeScript type checking
 
-# 构建
-pnpm build            # 构建Web应用
-pnpm tauri build      # 构建桌面应用
+# Build · 构建
+pnpm build            # Build production bundle + music manifest
 
-# 测试
-pnpm test             # 运行所有测试
-pnpm test:unit        # 运行单元测试
-pnpm test:e2e         # 运行E2E测试
-pnpm test:coverage    # 生成覆盖率报告
+# Test · 测试
+pnpm test             # Run all tests
+pnpm test:coverage    # Run tests with coverage report
 
-# 代码质量
-pnpm lint             # ESLint检查
-pnpm lint:fix         # 自动修复ESLint问题
-pnpm type-check       # TypeScript类型检查
-pnpm format           # Prettier格式化
+# Code quality · 代码质量
+pnpm lint             # ESLint check
+pnpm lint:fix         # Auto-fix ESLint issues
+pnpm format           # Prettier formatting
 
-# 其他
-pnpm clean            # 清理构建产物
-pnpm docs             # 启动文档服务器
+# Music manifest · 音乐库
+pnpm gen-music-manifest  # Regenerate music manifest
 ```
 
 ---
 
-## 📁 项目结构
+## 📦 Tech Stack · 技术栈
+
+| Category · 类别 | Technology · 技术 | Version · 版本 | Purpose · 用途 |
+|----------------|-------------------|---------------|----------------|
+| **Frontend** | React | 18.3+ | UI framework |
+| | TypeScript | 5.6+ | Type safety |
+| | Vite | 6.3+ | Build tool |
+| **State** | Zustand | 5.0+ | State management |
+| | Immer | 10.0+ | Immutable data |
+| **UI** | Radix UI | latest | Accessible components |
+| | Tailwind CSS | 4.0+ | Styling system |
+| | shadcn/ui | latest | Component library |
+| **Editor** | Monaco Editor | 0.55+ | Code editor |
+| | @tiptap | 3.24+ | Rich text editor |
+| **Storage** | IndexedDB (Dexie) | 4.0+ | Local database |
+| | localStorage | — | Config storage |
+| **AI** | OpenAI SDK | — | GPT-4o integration |
+| | Zhipu SDK | — | GLM-5 integration |
+| | Ollama | — | Local models |
+| **Audio** | Howler.js | 2.2+ | Audio engine |
+| | Web Audio API | — | Audio visualization |
+| **Testing** | Vitest | 4.x | Unit testing |
+| | Playwright | 1.58+ | E2E testing |
+| **Deploy** | GitHub Pages | — | Hosting |
+| | GitHub Actions | — | CI/CD |
+
+---
+
+## 📁 Project Structure · 项目结构
 
 ```
-YYC3-AI-PAI/
-├── public/                    # 静态资源
-│   └── yyc3-icons/           # 图标资源
+YYC3-PAI/
+├── public/                         # Static assets · 静态资源
+│   ├── music/                      # Music library · 音乐库
+│   │   ├── My-music-A/            # 沫言 (10 tracks)
+│   │   ├── My-music-B/            # 沫语 (10 tracks)
+│   │   └── My-music-AB/           # 合唱 (5 tracks)
+│   ├── music-manifest.json         # Auto-generated manifest · 自动生成清单
+│   ├── Family-001.png              # Project hero image · 项目封面
+│   ├── yyc3-icons/                 # Multi-platform icons · 多平台图标
+│   └── icon.svg                    # Favicon
+├── scripts/
+│   └── generate-music-manifest.cjs # Music scanner · 音乐扫描脚本
 ├── src/
-│   ├── app/                   # Next.js App Router
-│   │   ├── api/              # API路由
-│   │   ├── components/       # 页面组件
-│   │   ├── hooks/            # 自定义Hooks
-│   │   ├── i18n/             # 国际化
-│   │   ├── services/         # 业务服务
-│   │   ├── store/            # 状态管理
-│   │   ├── types/            # 类型定义
-│   │   └── utils/            # 工具函数
-│   ├── components/            # 通用组件
-│   │   ├── ui/               # 基础UI组件
-│   │   ├── panels/           # 面板组件
-│   │   └── layout/           # 布局组件
-│   └── styles/               # 全局样式
-├── src-tauri/                 # Tauri原生代码
-│   ├── src/                  # Rust源码
-│   └── tauri.conf.json       # Tauri配置
-├── tests/                     # 测试文件
-│   ├── unit/                 # 单元测试
-│   ├── integration/          # 集成测试
-│   └── e2e/                  # E2E测试
-├── docs/                      # 文档
-│   ├── P0-核心架构/          # 架构文档
-│   ├── P1-核心功能/          # 功能文档
-│   ├── P2-高级功能/          # 高级功能
-│   └── README.md             # 文档索引
+│   ├── app/
+│   │   ├── components/             # Page components · 页面组件
+│   │   │   ├── audio/             # Audio player components
+│   │   │   ├── ide/               # IDE components
+│   │   │   └── settings/          # Settings components
+│   │   ├── store/                  # State stores · 状态管理
+│   │   ├── services/              # Business services · 业务服务
+│   │   ├── hooks/                 # Custom hooks · 自定义 Hooks
+│   │   ├── utils/                 # Utilities · 工具函数
+│   │   │   ├── audio-engine.ts    # Audio engine · 音频引擎
+│   │   │   ├── model-router.ts    # AI model router · 模型路由
+│   │   │   └── storage-cleaner.ts # Storage manager · 存储管理
+│   │   ├── i18n/                  # Internationalization · 国际化
+│   │   └── types/                 # Type definitions · 类型定义
+│   ├── components/                 # Shared components · 共享组件
+│   │   └── ui/                    # Base UI components
+│   ├── styles/                     # Global styles · 全局样式
+│   ├── types/                      # Global types · 全局类型
+│   └── workers/                    # Web Workers
+├── docs/                           # Documentation · 文档
+│   └── [project documentation]
+├── e2e/                            # E2E tests · 端到端测试
+├── .github/
+│   └── workflows/
+│       └── ci.yml                 # CI/CD pipeline
+├── CNAME                           # Custom domain · 自定义域名
 ├── package.json
 ├── tsconfig.json
 ├── vite.config.ts
@@ -188,135 +293,86 @@ YYC3-AI-PAI/
 
 ---
 
-## 🏗️ 核心架构
+## 🧪 Testing · 测试
 
-### 系统架构图
+### Coverage · 覆盖率
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        YYC³ AI-PAI                               │
-├─────────────────────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐  ┌─────────────┐              │
-│  │   UI Layer  │  │ State Layer │  │  API Layer  │              │
-│  │  (React)    │◄─┤  (Zustand)  │◄─┤  (REST/WS)  │              │
-│  └─────────────┘  └─────────────┘  └─────────────┘              │
-│         │                │                │                      │
-│         ▼                ▼                ▼                      │
-│  ┌─────────────────────────────────────────────────┐            │
-│  │              Service Layer                       │            │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐         │            │
-│  │  │ AI Svc   │ │ File Svc │ │ DB Svc   │         │            │
-│  │  └──────────┘ └──────────┘ └──────────┘         │            │
-│  └─────────────────────────────────────────────────┘            │
-│         │                │                │                      │
-│         ▼                ▼                ▼                      │
-│  ┌─────────────────────────────────────────────────┐            │
-│  │              Storage Layer                       │            │
-│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐         │            │
-│  │  │IndexedDB │ │ LocalSt  │ │ File Sys │         │            │
-│  │  └──────────┘ └──────────┘ └──────────┘         │            │
-│  └─────────────────────────────────────────────────┘            │
-└─────────────────────────────────────────────────────────────────┘
-```
+| Type · 类型 | Current · 当前 | Target · 目标 |
+|-------------|---------------|--------------|
+| Statements · 语句 | 85%+ | 80% |
+| Branches · 分支 | 75%+ | 70% |
+| Functions · 函数 | 90%+ | 85% |
+| Lines · 行 | 85%+ | 80% |
 
-### 数据流架构
+### Run Tests · 运行测试
 
-```
-用户操作 → React组件 → Zustand Store → Service层 → 存储层
-    ↓           ↑            ↓            ↑           ↓
-  UI更新 ← 状态订阅 ← 状态更新 ← 业务逻辑 ← 数据持久化
-```
+```bash
+# All tests · 全部测试
+pnpm test
 
-### AI集成架构
+# Unit tests · 单元测试
+pnpm vitest run
 
-```
-┌────────────────────────────────────────────────────────────┐
-│                    AI Gateway                               │
-├────────────────────────────────────────────────────────────┤
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐          │
-│  │ OpenAI  │ │ Claude  │ │ Gemini  │ │ Ollama  │          │
-│  └────┬────┘ └────┬────┘ └────┬────┘ └────┬────┘          │
-│       │           │           │           │                │
-│       └───────────┴─────┬─────┴───────────┘                │
-│                         ▼                                   │
-│              ┌──────────────────┐                           │
-│              │  Unified Adapter │                           │
-│              │  (统一适配层)     │                           │
-│              └──────────────────┘                           │
-│                         │                                   │
-│       ┌─────────────────┼─────────────────┐                │
-│       ▼                 ▼                 ▼                │
-│  ┌─────────┐      ┌─────────┐      ┌─────────┐            │
-│  │ Cache   │      │ Rate    │      │ Fallback│            │
-│  │ Layer   │      │ Limiter │      │ Handler │            │
-│  └─────────┘      └─────────┘      └─────────┘            │
-└────────────────────────────────────────────────────────────┘
+# With coverage · 带覆盖率
+pnpm test:coverage
+
+# E2E tests · 端到端测试
+pnpm test:e2e
 ```
 
 ---
 
-## 🔌 API文档
-
-### 核心API
+## 🔌 API · API文档
 
 <details>
-<summary><b>📁 文件系统API</b></summary>
+<summary><b>📁 File System · 文件系统</b></summary>
 
 ```typescript
-// 读取文件
+// Read file · 读取文件
 const content = await fileSystem.readFile('/path/to/file.ts')
 
-// 写入文件
+// Write file · 写入文件
 await fileSystem.writeFile('/path/to/file.ts', content)
 
-// 监听文件变化
+// Watch file changes · 监听文件变化
 fileSystem.watch('/path/to/dir', (event, path) => {
   console.log(`${event}: ${path}`)
-})
-
-// 同步文件
-await syncEngine.sync({
-  source: 'local',
-  target: 'remote',
-  strategy: 'bidirectional'
 })
 ```
 
 </details>
 
 <details>
-<summary><b>🤖 AI服务API</b></summary>
+<summary><b>🤖 AI Services · AI服务</b></summary>
 
 ```typescript
-// 代码生成
+// Code generation · 代码生成
 const result = await aiService.generateCode({
-  prompt: '创建一个React组件',
+  prompt: 'Create a React component',
   language: 'typescript',
   context: currentFile
 })
 
-// 代码分析
+// Code analysis · 代码分析
 const analysis = await aiService.analyzeCode({
   code: sourceCode,
   language: 'typescript'
 })
 
-// 对话补全
+// Chat completion · 对话补全
 const response = await aiService.chat({
-  messages: [
-    { role: 'user', content: '帮我优化这段代码' }
-  ],
-  model: 'gpt-4'
+  messages: [{ role: 'user', content: 'Optimize this code' }],
+  model: 'gpt-4o'
 })
 ```
 
 </details>
 
 <details>
-<summary><b>💾 数据存储API</b></summary>
+<summary><b>💾 Data Storage · 数据存储</b></summary>
 
 ```typescript
-// IndexedDB操作
+// IndexedDB operations · IndexedDB 操作
 const db = new Dexie('YYC3Database')
 await db.entries.add({
   id: 'entry-1',
@@ -325,157 +381,123 @@ await db.entries.add({
   metadata: { ... }
 })
 
-// 数据导出
+// Data export · 数据导出
 const blob = await portabilityManager.exportData({
   format: 'json',
   includeEncrypted: true,
   compress: true
 })
 
-// 数据导入
+// Data import · 数据导入
 await portabilityManager.importData(file, passphrase)
+```
+
+</details>
+
+<details>
+<summary><b>🎵 Audio Engine · 音频引擎</b></summary>
+
+```typescript
+// Initialize music library · 初始化音乐库
+const engine = getAudioEngine()
+await engine.initializeMusicLibrary()
+
+// Play · 播放
+engine.play('track-id')
+
+// Seek · 跳转
+engine.seek(30) // seconds
+
+// Volume · 音量
+engine.setMusicVolume(70)  // 0-100
+
+// Subscribe to state · 订阅状态
+engine.subscribe((state) => {
+  console.log(state.currentTime, state.isPlaying)
+})
 ```
 
 </details>
 
 ---
 
-## 🧪 测试
+## 📊 Performance · 性能指标
 
-### 测试覆盖率
+| Metric · 指标 | Target · 目标 | Current · 当前 |
+|--------------|--------------|---------------|
+| First Paint · 首屏加载 | < 2s | ~1.5s |
+| Page Switch · 页面切换 | < 100ms | ~80ms |
+| Data Load · 数据加载 | < 500ms | ~350ms |
+| Memory · 内存占用 | < 500MB | ~380MB |
+| CPU Usage · CPU使用率 | < 30% | ~22% |
+| Bundle Size · 包体积 | < 5MB | ~3.5MB (gzip) |
 
-| 类型 | 覆盖率 | 目标 |
-|------|--------|------|
-| 语句覆盖率 | 85%+ | 80% |
-| 分支覆盖率 | 75%+ | 70% |
-| 函数覆盖率 | 90%+ | 85% |
-| 行覆盖率 | 85%+ | 80% |
+---
 
-### 运行测试
+## 📚 Documentation · 文档体系
+
+### Open-Source Standards · 开源标准文件
+
+| File · 文件 | Status · 状态 | Description · 说明 |
+|------------|-------------|------------------|
+| ✅ [LICENSE](./LICENSE) | MIT v1.0 | Open-source license · 开源许可证 |
+| ✅ [CONTRIBUTING.md](./CONTRIBUTING.md) | v1.0 | Contribution guide · 贡献指南 |
+| ✅ [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) | v1.0 | Code of conduct · 行为准则 |
+| ✅ [SECURITY.md](./SECURITY.md) | v1.0 | Security policy · 安全政策 |
+| ✅ [SUPPORT.md](./SUPPORT.md) | v1.0 | Support channels · 支持渠道 |
+| ✅ [CHANGELOG.md](./CHANGELOG.md) | v1.0.0 | Version changelog · 更新日志 |
+| ✅ [.github/ISSUE_TEMPLATE](./.github/ISSUE_TEMPLATE/) | 2 templates | Bug report & Feature request |
+| ✅ [.github/PULL_REQUEST_TEMPLATE.md](./.github/PULL_REQUEST_TEMPLATE.md) | v1.0 | PR template |
+| ✅ [.github/workflows/ci.yml](./.github/workflows/ci.yml) | v1.0 | CI/CD pipeline |
+
+### Full Documentation Index · 完整文档索引
+
+| Document · 文档 | Description · 说明 | Link · 链接 |
+|----------------|-------------------|------------|
+| 📘 项目总览 · Overview | Architecture, features, quick start | [README](./README.md) |
+| 📗 核心架构 · Core Arch | Technical design, storage, building | [P0-核心架构](./docs/P0-核心架构/) |
+| 📙 功能说明 · Features | AI, editor, state management | [P1-核心功能](./docs/P1-核心功能/) |
+| 📒 高级特性 · Advanced | Collaboration, plugins, database | [P2-高级功能](./docs/P2-高级功能/) |
+| 🎵 音乐库 · Music Lib | 25 original tracks | [MUSIC-LIBRARY-INDEX.md](./public/MUSIC-LIBRARY-INDEX.md) |
+
+---
+
+## 🤝 Contributing · 贡献
+
+We welcome all forms of contribution! See [CONTRIBUTING.md](./CONTRIBUTING.md) for full details.
+
+我们欢迎所有形式的贡献！详见 [CONTRIBUTING.md](./CONTRIBUTING.md)。
+
+### Quick Guide · 快速指南
 
 ```bash
-# 运行所有测试
-pnpm test
-
-# 运行特定测试
-pnpm test src/app/store/__tests__
-
-# 生成覆盖率报告
-pnpm test:coverage
-
-# E2E测试
-pnpm test:e2e
-```
-
----
-
-## 📈 性能指标
-
-| 指标 | 目标 | 实际 |
-|------|------|------|
-| 首屏加载时间 | < 2s | 1.5s |
-| 页面切换响应 | < 100ms | 80ms |
-| 数据加载时间 | < 500ms | 350ms |
-| 内存占用 | < 500MB | 380MB |
-| CPU使用率 | < 30% | 22% |
-| 包体积 | < 50MB | 42MB |
-
----
-
-## 📚 完整文档体系
-
-### 🎯 快速导航
-
-| 文档 | 描述 | 链接 |
-|------|------|------|
-| **📘 项目总览** | 架构、特性、快速开始 | [README](./README.md) |
-| **📗 核心架构** | 技术设计、存储系统、构建配置 | [P0-核心架构](./docs/P0-核心架构/) |
-| **📙 功能说明** | AI集成、编辑器、状态管理 | [P1-核心功能](./docs/P1-核心功能/) |
-| **📒 高级特性** | 协作、插件、数据库优化 | [P2-高级功能](./docs/P2-高级功能/) |
-| **🔐 安全政策** | 漏洞报告、加密架构、合规性 | [SECURITY](./SECURITY.md) |
-| **🤝 贡献指南** | 开发规范、PR流程、行为准则 | [CONTRIBUTING](./CONTRIBUTING.md) |
-| **❓ 获取帮助** | FAQ、支持渠道、学习资源 | [SUPPORT](./SUPPORT.md) |
-| **⚖️ 开源许可** | MIT License、使用条款 | [LICENSE](./LICENSE) |
-
-### 📋 开源标准文件
-
-| 文件 | 状态 | 说明 |
-|------|------|------|
-| ✅ [LICENSE](./LICENSE) | MIT v1.0 | 开源许可证 |
-| ✅ [CODE_OF_CONDUCT.md](./CODE_OF_CONDUCT.md) | v1.0 | 社区行为准则 |
-| ✅ [SECURITY.md](./SECURITY.md) | v1.0 | 安全政策与漏洞报告 |
-| ✅ [CONTRIBUTING.md](./CONTRIBUTING.md) | v1.0 | 贡献指南与开发规范 |
-| ✅ [SUPPORT.md](./SUPPORT.md) | v1.0 | 支持渠道与FAQ |
-| ✅ [CONTRIBUTORS.md](./CONTRIBUTORS.md) | v1.0 | 贡献者列表与荣誉体系 |
-| ✅ [CHANGELOG.md](./CHANGELOG.md) | v1.0.0 | 版本更新日志 |
-| ✅ [.github/ISSUE_TEMPLATE/](./.github/ISSUE_TEMPLATE/) | 2 templates | Issue模板 (Bug/Feature) |
-| ✅ [.github/PULL_REQUEST_TEMPLATE.md](./.github/PULL_REQUEST_TEMPLATE.md) | v1.0 | PR标准模板 |
-| ✅ [.github/workflows/ci.yml](./.github/workflows/ci.yml) | v1.0 | CI/CD流水线 |
-
-### 📊 文档覆盖率
-
-```
-总文档数:     100+ 篇
-核心文档:     35 篇  ✅
-技术文档:     25 篇  ✅
-设计文档:     15 篇  ✅
-审核报告:     15 篇  ✅
-开源标准:     10 篇  ✅ (新增)
-文档完整度:   97%    🎉
-```
-
----
-
-## 🤝 贡献指南
-
-我们欢迎所有形式的贡献！
-
-### 贡献方式
-
-1. **报告问题** - [提交Issue](https://github.com/YYC-Cube/YYC3-AI-PAI/issues)
-2. **功能建议** - [功能讨论](https://github.com/YYC-Cube/YYC3-AI-PAI/discussions)
-3. **代码贡献** - [提交PR](https://github.com/YYC-Cube/YYC3-AI-PAI/pulls)
-4. **文档改进** - 完善文档和示例
-
-### 开发流程
-
-```bash
-# 1. Fork并克隆
-git clone https://github.com/your-username/YYC3-AI-PAI.git
-
-# 2. 创建分支
+# 1. Fork the repo · Fork 仓库
+# 2. Create branch · 创建分支
 git checkout -b feature/amazing-feature
 
-# 3. 开发和测试
+# 3. Make changes · 修改代码
 pnpm dev
-pnpm test
 
-# 4. 提交代码
+# 4. Run tests · 运行测试
+pnpm test && pnpm lint && pnpm type-check
+
+# 5. Commit · 提交 (遵循 Conventional Commits)
 git commit -m 'feat: add amazing feature'
 
-# 5. 推送分支
+# 6. Push & PR
 git push origin feature/amazing-feature
-
-# 6. 创建Pull Request
 ```
-
-### 代码规范
-
-- 遵循 [Conventional Commits](https://www.conventionalcommits.org/)
-- 通过所有测试和Lint检查
-- 添加必要的测试用例
-- 更新相关文档
 
 ---
 
-## 📄 许可证
+## 📄 License · 许可证
 
-本项目基于 [MIT License](./LICENSE) 开源。
+<div align="center">
 
 ```
 MIT License
 
-Copyright (c) 2026 YanYuCloudCube Team
+Copyright (c) 2026 YanYuCloudCube™
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -490,40 +512,15 @@ copies or substantial portions of the Software.
 
 ---
 
-## 🙏 致谢
+**YYC³ AI-PAI** © 2026 **YanYuCloudCube™**
 
-感谢以下开源项目：
+**All rights reserved. · 版权所有**
 
-- [React](https://react.dev/) - UI框架
-- [Tauri](https://tauri.app/) - 桌面应用框架
-- [Monaco Editor](https://microsoft.github.io/monaco-editor/) - 代码编辑器
-- [Zustand](https://github.com/pmndrs/zustand) - 状态管理
-- [Tailwind CSS](https://tailwindcss.com/) - CSS框架
-- [Radix UI](https://www.radix-ui.com/) - 无障碍组件
+**Trademark Notice:** *YanYuCloudCube™* and the YYC³ logo are trademarks of YanYuCloudCube Team.
 
----
-
-## 📞 联系我们
-
-<div align="center">
-
-| 渠道 | 链接 |
-|------|------|
-| 📧 邮箱 | <admin@0379.email> |
-| 🌐 项目 | <https://ai-pai.yyccube.com> |
-| 💬 GitHub Discussions | [参与讨论](https://github.com/YYC-Cube/YYC3-AI-PAI/discussions) |
-| 🐛 问题反馈 | [提交Issue](https://github.com/YYC-Cube/YYC3-AI-PAI/issues) |
-
----
-
-**YanYuCloudCube Team**
-
-*言启象限 | 语枢未来*
-
+*言启象限 · 语枢未来*
 *Words Initiate Quadrants, Language Serves as Core for Future*
 
-*万象归元于云枢 | 深栈智启新纪元*
-
-*All things converge in cloud pivot; Deep stacks ignite a new era of intelligence*
+**🌐 [pai.yyc3.vip](https://pai.yyc3.vip)** · 📧 [admin@0379.email](mailto:admin@0379.email) · 🐛 [Issues](https://github.com/YYC-Cube/YYC3-PAI/issues)
 
 </div>

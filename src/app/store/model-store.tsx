@@ -12,10 +12,10 @@
  * @tags model,ai,state-management
  */
 
-import { createContext, useContext, useState, useCallback, useEffect, useRef, useMemo, type ReactNode } from "react";
-import { aiMetricsStore } from "./ai-metrics-store";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { NetworkError } from "../types/errors";
 import { createLogger } from "../utils/logger";
+import { aiMetricsStore } from "./ai-metrics-store";
 
 const logger = createLogger('model-store');
 
@@ -60,6 +60,7 @@ interface ModelStoreContextType {
   openModelSettings: (initialTab?: string) => void;
   closeModelSettings: () => void;
   connectivityMap: Record<string, ConnectivityStatus>;
+  lastSuccessTime: number;
   checkConnectivity: (modelId: string) => Promise<ConnectivityStatus>;
   testModel: (modelId: string) => Promise<ModelTestResult>;
   sendToActiveModel: (message: string, options?: { systemPrompt?: string; history?: { role: string; content: string }[] }) => Promise<string>;
@@ -74,13 +75,13 @@ function loadModels(): AIModel[] {
   catch { return []; }
 }
 function saveModels(m: AIModel[]) {
-  try { localStorage.setItem(LS_MODELS, JSON.stringify(m)); } catch {/* */}
+  try { localStorage.setItem(LS_MODELS, JSON.stringify(m)); } catch {/* */ }
 }
 function loadActiveId(): string | null {
   try { return localStorage.getItem(LS_ACTIVE); } catch { return null; }
 }
 function saveActiveId(id: string | null) {
-  try { if (id) localStorage.setItem(LS_ACTIVE, id); else localStorage.removeItem(LS_ACTIVE); } catch {/* */}
+  try { if (id) localStorage.setItem(LS_ACTIVE, id); else localStorage.removeItem(LS_ACTIVE); } catch {/* */ }
 }
 function genId() { return "m_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 8); }
 
@@ -169,8 +170,9 @@ export function ModelStoreProvider({ children }: { children: ReactNode }) {
   const [modelSettingsOpen, setModelSettingsOpen] = useState(false);
   const [modelSettingsInitialTab, setModelSettingsInitialTab] = useState<string | null>(null);
   const [connectivityMap, setConnectivityMap] = useState<Record<string, ConnectivityStatus>>({});
+  const [lastSuccessTime, setLastSuccessTime] = useState<number>(0);
   const modelsRef = useRef(aiModels);
-  
+
   useEffect(() => {
     modelsRef.current = aiModels;
   }, [aiModels]);
@@ -184,7 +186,7 @@ export function ModelStoreProvider({ children }: { children: ReactNode }) {
   // ===== 自动网络检测（对齐 Guidelines: Intelligent Detection） =====
   // 每 60 秒自动检测活跃模型连接状态
   const activeModelIdRef = useRef(activeModelId);
-  
+
   useEffect(() => {
     activeModelIdRef.current = activeModelId;
   }, [activeModelId]);
@@ -371,6 +373,8 @@ export function ModelStoreProvider({ children }: { children: ReactNode }) {
         });
         // 更新连接状态为在线
         setConnectivityMap((p) => ({ ...p, [m.id]: { modelId: m.id, status: "online", latencyMs, lastChecked: Date.now() } }));
+        // 更新最后成功时间戳
+        setLastSuccessTime(Date.now());
         return content;
       } catch (err: Error | NetworkError | unknown) {
         clearTimeout(tm);
@@ -415,8 +419,8 @@ export function ModelStoreProvider({ children }: { children: ReactNode }) {
     aiModels, activeModelId,
     addAIModel, removeAIModel, updateAIModel, activateAIModel, deactivateAIModel, getActiveModel,
     modelSettingsOpen, modelSettingsInitialTab, openModelSettings, closeModelSettings,
-    connectivityMap, checkConnectivity, testModel, sendToActiveModel,
-  }), [aiModels, activeModelId, modelSettingsOpen, modelSettingsInitialTab, connectivityMap,
+    connectivityMap, lastSuccessTime, checkConnectivity, testModel, sendToActiveModel,
+  }), [aiModels, activeModelId, modelSettingsOpen, modelSettingsInitialTab, connectivityMap, lastSuccessTime,
     addAIModel, removeAIModel, updateAIModel, activateAIModel, deactivateAIModel, getActiveModel,
     openModelSettings, closeModelSettings, checkConnectivity, testModel, sendToActiveModel]);
 
@@ -426,17 +430,18 @@ export function ModelStoreProvider({ children }: { children: ReactNode }) {
 const fallbackModelStore: ModelStoreContextType = {
   aiModels: [],
   activeModelId: null,
-  addAIModel: () => {},
-  removeAIModel: () => {},
-  updateAIModel: () => {},
-  activateAIModel: () => {},
-  deactivateAIModel: () => {},
+  addAIModel: () => { },
+  removeAIModel: () => { },
+  updateAIModel: () => { },
+  activateAIModel: () => { },
+  deactivateAIModel: () => { },
   getActiveModel: () => null,
   modelSettingsOpen: false,
   modelSettingsInitialTab: null,
-  openModelSettings: () => {},
-  closeModelSettings: () => {},
+  openModelSettings: () => { },
+  closeModelSettings: () => { },
   connectivityMap: {},
+  lastSuccessTime: 0,
   checkConnectivity: async (modelId: string) => ({ modelId, status: "unknown" as const }),
   testModel: async () => ({ success: false, latencyMs: 0, error: "No provider" }),
   sendToActiveModel: async () => "",

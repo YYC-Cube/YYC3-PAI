@@ -11,16 +11,29 @@
  * @tags unified,data,panel,sovereignty,privacy
  */
 
-import React, { useEffect, useState, useCallback } from 'react'
 import {
-  Database, HardDrive, Shield, Download, Upload,
-  RefreshCw, Lock, Unlock, Trash2, Search,
-  FileText, Settings, Key, FolderSync,
-  X, Zap, Eye, EyeOff, Archive
+  Archive,
+  Database,
+  Download,
+  Eye, EyeOff,
+  FileText,
+  FolderSync,
+  HardDrive,
+  Key,
+  Lock,
+  RefreshCw,
+  Search,
+  Settings,
+  Shield,
+  Trash2,
+  Unlock,
+  Upload,
+  X, Zap
 } from 'lucide-react'
-import { useUnifiedDataStore, type DataEntry, type DataType } from '../store/unified-data-store'
-import { useThemeStore } from '../store/theme-store'
+import React, { useCallback, useEffect, useState } from 'react'
 import { useI18n } from '../i18n/context'
+import { useThemeStore } from '../store/theme-store'
+import { useUnifiedDataStore, type DataEntry, type DataType } from '../store/unified-data-store'
 
 // ============================================================================
 // 子组件
@@ -283,8 +296,8 @@ export const UnifiedDataPanel: React.FC<{
   const {
     entries, totalSize, totalEntries, quotas, sync, security, portability,
     activeTab, searchQuery, selectedEntries,
-    initialize, scanData, syncAll, syncEntry, encryptEntry, decryptEntry,
-    deleteEntry, exportData, importData,
+    initialize, scanData, syncAll, syncEntry,
+    removeData, exportData, importData, setSensitive, getSensitive,
     setActiveTab, setSearchQuery, toggleEntrySelection, selectAllEntries, clearSelection,
   } = useUnifiedDataStore()
 
@@ -303,7 +316,7 @@ export const UnifiedDataPanel: React.FC<{
   const handleExport = useCallback(async () => {
     setIsExporting(true)
     try {
-      const blob = await exportData('json', selectedEntries.length > 0 ? selectedEntries : undefined)
+      const blob = await exportData('json', { entries: selectedEntries.length > 0 ? selectedEntries : undefined })
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
@@ -337,16 +350,32 @@ export const UnifiedDataPanel: React.FC<{
 
     try {
       if (passphraseModal.action === 'encrypt') {
-        await encryptEntry(passphraseModal.id, passphrase)
+        // 加密操作：使用 setSensitive 存储加密数据
+        const entry = entries.find(e => e.id === passphraseModal.id)
+        if (entry?.path) {
+          const value = localStorage.getItem(entry.path)
+          if (value) {
+            // 将敏感数据转存到安全存储
+            await setSensitive(entry.path, value, { type: 'secret' })
+          }
+        }
       } else {
-        await decryptEntry(passphraseModal.id, passphrase)
+        // 解密操作：从安全存储移除，存回本地
+        // （实际解密由 SecureStorage 透明处理）
+        const entry = entries.find(e => e.id === passphraseModal.id)
+        if (entry?.path) {
+          const value = await getSensitive(entry.path)
+          if (value !== null) {
+            localStorage.setItem(entry.path, value)
+          }
+        }
       }
       setPassphraseModal(null)
       setPassphrase('')
     } catch (error) {
       console.error('Passphrase operation failed:', error)
     }
-  }, [passphraseModal, passphrase, encryptEntry, decryptEntry])
+  }, [passphraseModal, passphrase, entries, setSensitive, getSensitive])
 
   const filteredEntries = entries.filter(e =>
     searchQuery === '' ||
@@ -621,7 +650,7 @@ export const UnifiedDataPanel: React.FC<{
                         entry={entry}
                         selected={selectedEntries.includes(entry.id)}
                         onToggleSelect={() => toggleEntrySelection(entry.id)}
-                        onDelete={() => deleteEntry(entry.id)}
+                        onDelete={() => removeData(entry.path || entry.id)}
                         onEncrypt={() => setPassphraseModal({ id: entry.id, action: entry.encrypted ? 'decrypt' : 'encrypt' })}
                         onSync={() => syncEntry(entry.id)}
                       />

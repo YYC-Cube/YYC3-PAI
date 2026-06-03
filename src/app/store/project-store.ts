@@ -294,6 +294,149 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
     ],
     designJson: createDefaultDesignJson('blank'),
   },
+
+  // ===== Phase 1.3: 自媒体内容模板 (Self-Media Content Templates) =====
+  {
+    id: 'wechat-article',
+    name: { zh: '公众号文章', en: 'WeChat Article' },
+    description: { zh: '微信公众号图文内容模板，含封面图、摘要、正文分段结构', en: 'WeChat Official Account article with cover image, summary, and section structure' },
+    icon: '📱',
+    techStack: ['TipTap 富文本', 'AI 写作助手', '素材管理器', 'YYC³ RichTextEditor'],
+    defaultFiles: [
+      {
+        name: 'content', type: 'folder', children: [
+          { name: 'article.md', type: 'file', ext: 'md' },
+          { name: 'summary.md', type: 'file', ext: 'md' },
+          { name: 'sections', type: 'folder', children: [
+            { name: '01-opening.md', type: 'file', ext: 'md' },
+            { name: '02-body.md', type: 'file', ext: 'md' },
+            { name: '03-closing.md', type: 'file', ext: 'md' },
+          ]},
+        ],
+      },
+      {
+        name: 'assets', type: 'folder', children: [
+          { name: 'cover.jpg', type: 'file', ext: 'jpg' },
+          { name: 'images', type: 'folder', children: [] },
+        ],
+      },
+      { name: 'metadata.json', type: 'file', ext: 'json' },
+      { name: 'publish-config.json', type: 'file', ext: 'json' },
+    ],
+    designJson: createDefaultDesignJson('wechat-article'),
+  },
+  {
+    id: 'xiaohongshu-note',
+    name: { zh: '小红书笔记', en: 'Xiaohongshu Note' },
+    description: { zh: '小红书图文笔记模板，封面图+多图轮播+正文+标签', en: 'Xiaohongshu image-text note with cover, carousel images, text & tags' },
+    icon: '📕',
+    techStack: ['图片编辑器', 'AI 文案', '标签推荐', 'YYC³ ImageGenPanel'],
+    defaultFiles: [
+      {
+        name: 'content', type: 'folder', children: [
+          { name: 'note.md', type: 'file', ext: 'md' },
+          { name: 'caption.md', type: 'file', ext: 'md' },
+          { name: 'tags.txt', type: 'file', ext: 'txt' },
+        ],
+      },
+      {
+        name: 'assets', type: 'folder', children: [
+          { name: 'cover.png', type: 'file', ext: 'png' },
+          { name: 'carousel', type: 'folder', children: [
+            { name: 'slide-01.png', type: 'file', ext: 'png' },
+            { name: 'slide-02.png', type: 'file', ext: 'png' },
+            { name: 'slide-03.png', type: 'file', ext: 'png' },
+          ]},
+        ],
+      },
+      { name: 'metadata.json', type: 'file', ext: 'json' },
+    ],
+    designJson: createDefaultDesignJson('xiaohongshu-note'),
+  },
+  {
+    id: 'video-script',
+    name: { zh: '视频脚本', en: 'Video Script' },
+    description: { zh: '视频创作脚本模板，分镜+台词+时长+拍摄说明', en: 'Video production script with scenes, dialogue, timing & shooting notes' },
+    icon: '🎬',
+    techStack: ['AI 文案', '分镜管理', '素材管理器', 'YYC³ TipTap'],
+    defaultFiles: [
+      {
+        name: 'content', type: 'folder', children: [
+          { name: 'script.md', type: 'file', ext: 'md' },
+          { name: 'outline.md', type: 'file', ext: 'md' },
+          { name: 'scenes', type: 'folder', children: [
+            { name: 'scene-01.md', type: 'file', ext: 'md' },
+            { name: 'scene-02.md', type: 'file', ext: 'md' },
+            { name: 'scene-03.md', type: 'file', ext: 'md' },
+          ]},
+        ],
+      },
+      {
+        name: 'assets', type: 'folder', children: [
+          { name: 'storyboard', type: 'folder', children: [] },
+          { name: 'references', type: 'folder', children: [] },
+        ],
+      },
+      { name: 'metadata.json', type: 'file', ext: 'json' },
+    ],
+    designJson: createDefaultDesignJson('video-script'),
+  },
+  {
+    id: 'zhihu-article',
+    name: { zh: '知乎文章', en: 'Zhihu Article' },
+    description: { zh: '知乎长文内容模板，引言+正文+结论+参考文献', en: 'Zhihu long-form article with introduction, body, conclusion & references' },
+    icon: '💡',
+    techStack: ['AI 写作助手', '引用管理', 'TipTap 富文本', 'YYC³ RichTextEditor'],
+    defaultFiles: [
+      {
+        name: 'content', type: 'folder', children: [
+          { name: 'article.md', type: 'file', ext: 'md' },
+          { name: 'outline.md', type: 'file', ext: 'md' },
+          { name: 'references', type: 'folder', children: [
+            { name: 'ref-01.md', type: 'file', ext: 'md' },
+          ]},
+        ],
+      },
+      {
+        name: 'assets', type: 'folder', children: [
+          { name: 'images', type: 'folder', children: [] },
+          { name: 'diagrams', type: 'folder', children: [] },
+        ],
+      },
+      { name: 'metadata.json', type: 'file', ext: 'json' },
+    ],
+    designJson: createDefaultDesignJson('zhihu-article'),
+  },
+  {
+    id: 'multi-platform-post',
+    name: { zh: '多平台图文', en: 'Multi-Platform Post' },
+    description: { zh: '通用内容模板，一次创作适配多平台（公众号/知乎/小红书/B站）', en: 'Universal content template — create once, publish to WeChat/Zhihu/Xiaohongshu/Bilibili' },
+    icon: '🌐',
+    techStack: ['AI 写作助手', '格式转换', '一键发布', 'YYC³ RichTextEditor'],
+    defaultFiles: [
+      {
+        name: 'content', type: 'folder', children: [
+          { name: 'master.md', type: 'file', ext: 'md' },
+          {
+            name: 'versions', type: 'folder', children: [
+              { name: 'wechat.md', type: 'file', ext: 'md' },
+              { name: 'zhihu.md', type: 'file', ext: 'md' },
+              { name: 'xiaohongshu.md', type: 'file', ext: 'md' },
+            ],
+          },
+        ],
+      },
+      {
+        name: 'assets', type: 'folder', children: [
+          { name: 'images', type: 'folder', children: [] },
+          { name: 'export', type: 'folder', children: [] },
+        ],
+      },
+      { name: 'metadata.json', type: 'file', ext: 'json' },
+      { name: 'publish-config.json', type: 'file', ext: 'json' },
+    ],
+    designJson: createDefaultDesignJson('multi-platform-post'),
+  },
 ]
 
 // ===== Creation Steps =====

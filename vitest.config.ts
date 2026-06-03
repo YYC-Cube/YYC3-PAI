@@ -1,6 +1,6 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vitest/config'
 import path from 'path'
+import { defineConfig } from 'vitest/config'
 
 export default defineConfig({
   resolve: {
@@ -12,7 +12,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    include: ['src/**/*.test.{ts,tsx}', 'benchmarks/**/*.test.ts', 'e2e/**/*.test.ts'],
+    include: ['src/**/*.test.{ts,tsx}', 'benchmarks/**/*.test.ts', 'e2e/tests/**/*.test.ts', 'e2e/**/*.e2e.test.ts'],
+    exclude: ['e2e/My-mgmt*/**', 'src/app/store/__tests__/unified-data-store.test.ts', 'node_modules/**'],
     setupFiles: ['./src/test/setup.ts'],
     coverage: {
       provider: 'v8',

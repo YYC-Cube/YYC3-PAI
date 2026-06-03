@@ -11,18 +11,31 @@
  * @tags storage,management,ui,component
  */
 
-import { useState, useEffect, useCallback } from 'react'
 import {
-  Database, HardDrive, Trash2, Download, Upload, RefreshCw,
-  AlertTriangle, CheckCircle2, Info, X, Settings, Clock,
-  FileText, Archive, Shield, Activity
+  Activity,
+  AlertTriangle,
+  Archive,
+  CheckCircle2,
+  Clock,
+  Database,
+  Download,
+  FileText,
+  HardDrive,
+  Info,
+  RefreshCw,
+  Settings,
+  Shield,
+  Trash2,
+  Upload,
+  X
 } from 'lucide-react'
-import { storageMonitor, type StorageStats, type StorageAlert } from '../utils/storage-monitor'
-import { storageCleaner } from '../utils/storage-cleaner'
-import { backupManager, type BackupInfo } from '../utils/storage-backup'
-import { useThemeStore, type ThemeTokens } from '../store/theme-store'
+import { useCallback, useEffect, useState } from 'react'
 import { useI18n, type TranslationSection } from '../i18n/context'
+import { useThemeStore, type ThemeTokens } from '../store/theme-store'
 import { createLogger } from '../utils/logger'
+import { backupManager, type BackupInfo } from '../utils/storage-backup'
+import { storageCleaner } from '../utils/storage-cleaner'
+import { storageMonitor, type StorageAlert, type StorageStats } from '../utils/storage-monitor'
 
 const logger = createLogger('StorageManager')
 
@@ -186,7 +199,7 @@ export function StorageManager() {
     setCleaning(true)
     setMessage(null)
     try {
-      const result = await storageCleaner.cleanExpiredCache()
+      const result = await storageCleaner.runPolicy(storageCleaner.getPolicies().find(p => p.id === 'cache-expiry')!)
       if (result.errors.length > 0) {
         setMessage({ type: 'error', text: `Cleaned ${result.cleaned} items, but ${result.errors.length} errors occurred` })
       } else {
@@ -204,11 +217,11 @@ export function StorageManager() {
     setCleaning(true)
     setMessage(null)
     try {
-      const result = await storageCleaner.cleanOldData(7 * 24 * 60 * 60 * 1000)
+      const result = await storageCleaner.runPolicy(storageCleaner.getPolicies().find(p => p.id === 'old-sync-records')!)
       if (result.errors.length > 0) {
         setMessage({ type: 'error', text: `Cleaned ${result.cleaned} items, but ${result.errors.length} errors occurred` })
       } else {
-        setMessage({ type: 'success', text: `Cleaned ${result.cleaned} items older than 7 days, freed ${(result.freedBytes / 1024).toFixed(2)} KB` })
+        setMessage({ type: 'success', text: `Cleaned ${result.cleaned} items older than 30 days, freed ${(result.freedBytes / 1024).toFixed(2)} KB` })
       }
       await loadStats()
     } catch (error) {
@@ -222,7 +235,7 @@ export function StorageManager() {
     setCleaning(true)
     setMessage(null)
     try {
-      const result = await storageCleaner.cleanLowPriorityData()
+      const result = await storageCleaner.runPolicy(storageCleaner.getPolicies().find(p => p.id === 'low-priority-clean')!)
       if (result.errors.length > 0) {
         setMessage({ type: 'error', text: `Cleaned ${result.cleaned} items, but ${result.errors.length} errors occurred` })
       } else {
@@ -568,7 +581,7 @@ export function StorageManager() {
                 </div>
               </div>
               <button
-                onClick={() => storageCleaner.scheduleAutoClean(24 * 60 * 60 * 1000)}
+                onClick={() => storageCleaner.startAutoClean(24 * 60 * 60 * 1000)}
                 className="px-3 py-1 rounded text-[10px] transition-all hover:opacity-80"
                 style={{ background: tk.primary, color: tk.background }}
               >

@@ -1,3 +1,14 @@
+/**
+ * @file tauri-plugin-fs.d.ts
+ * @description YYC³ AI-PAI type definitions and examples
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [types]
+ */
+
 declare module '@tauri-apps/plugin-fs' {
   interface FileInfo {
     name: string

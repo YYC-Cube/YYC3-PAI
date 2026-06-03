@@ -11,25 +11,53 @@
  * @tags component,fullscreen,ui
  */
 
-import { useState, useEffect, useRef, useCallback } from "react";
 import {
-  Brain, Cpu, Database, Globe, Shield, Activity, Terminal,
-  Settings, Zap, Radio, Wifi, Eye, ChevronRight, Send,
-  BarChart3, Lock, Server, Layers, MessageSquare, ArrowUpRight, Bot,
-  AppWindow, Code2, Bell, Command, Search
+  Activity,
+  AppWindow,
+  ArrowUpRight,
+  BarChart3,
+  Bell,
+  Bot,
+  Brain,
+  ChevronRight,
+  Code2,
+  Command,
+  Cpu, Database,
+  Eye,
+  FileText,
+  Flame,
+  Globe,
+  Image as ImageIcon,
+  Layers,
+  Lock,
+  MessageCircle,
+  MessageSquare,
+  Radio,
+  Search,
+  Send,
+  Server,
+  Settings,
+  Shield,
+  Sparkles,
+  Terminal,
+  Wifi,
+  Zap
 } from "lucide-react";
-import { GlitchText } from "./GlitchText";
-import { HoloCard } from "./HoloCard";
-import { LangSwitcher } from "./LangSwitcher";
-import { ThemeSwitcher } from "./ThemeSwitcher";
-import { StatDetailPanel } from "./StatDetailPanel";
-import { CyberTooltip } from "./CyberTooltip";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useI18n } from "../i18n/context";
 import { useModelStore } from "../store/model-store";
 import { useThemeStore } from "../store/theme-store";
-import { cyberToast } from "./CyberToast";
-import logoImg from "/yyc3-icons/macOS/1024.png";
 import type { ChatMessage } from "../types";
+import { cyberToast } from "./CyberToast";
+import { CyberTooltip } from "./CyberTooltip";
+import { GlitchText } from "./GlitchText";
+import { HoloCard } from "./HoloCard";
+import { LangSwitcher } from "./LangSwitcher";
+import { StatDetailPanel } from "./StatDetailPanel";
+import { ThemeSwitcher } from "./ThemeSwitcher";
+import { MiniAudioPlayer } from "./audio/MiniAudioPlayer";
+import { AIMessageRenderer } from "./ide/AIMessageRenderer";
+import logoImg from "/yyc3-icons/macOS/1024.png";
 
 // Font/color constants removed — use tokens from useThemeStore() instead
 
@@ -83,17 +111,36 @@ const systemInfoKeys = [
 
 const responseKeys = ["response1", "response2", "response3", "response4"];
 
-export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, onOpenNotifications, onOpenCommandPalette, onOpenGlobalSearch }: {
+export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, onOpenNotifications, onOpenCommandPalette, onOpenGlobalSearch, onOpenAIWriting, onOpenContentTemplate, onOpenMaterialManager, onOpenPublishQueue, onOpenTrendingTopics, onOpenChat }: {
   onSwitchMode: () => void;
   onSwitchToIDE: () => void;
   onOpenSettings?: () => void;
   onOpenNotifications?: () => void;
   onOpenCommandPalette?: () => void;
   onOpenGlobalSearch?: () => void;
+  // 自媒体创作引擎入口
+  onOpenAIWriting?: () => void;
+  onOpenContentTemplate?: () => void;
+  onOpenMaterialManager?: () => void;
+  onOpenPublishQueue?: () => void;
+  onOpenTrendingTopics?: () => void;
+  // 智能聊天入口
+  onOpenChat?: () => void;
 }) {
   const { t, locale } = useI18n();
-  const { openModelSettings, getActiveModel, sendToActiveModel, activeModelId, connectivityMap } = useModelStore();
+  const { openModelSettings, getActiveModel, sendToActiveModel, activeModelId, connectivityMap, lastSuccessTime } = useModelStore();
   const { tokens, isCyberpunk } = useThemeStore();
+
+  const getModelStatusColor = useCallback(() => {
+    if (!activeModelId) return tokens.foregroundMuted;
+    const am = getActiveModel();
+    if (!am) return tokens.foregroundMuted;
+    const cs = connectivityMap[am.id];
+    if (!cs || cs.status === "online" || cs.status === "checking") return tokens.success;
+    if (cs.status === "offline" && lastSuccessTime > 0 && (Date.now() - lastSuccessTime) < 300_000) return tokens.success;
+    if (cs.status === "offline") return tokens.error;
+    return tokens.foregroundMuted;
+  }, [activeModelId, connectivityMap, lastSuccessTime, getActiveModel, tokens]);
   const [activeTab, setActiveTab] = useState(0);
   const [messages, setMessages] = useState<ChatMessage[]>(() => [
     { role: "ai", content: t("chat", "initMessage"), timestamp: "00:00:01" },
@@ -281,7 +328,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           ) : (
             <span style={{ fontFamily: tokens.fontDisplay, fontSize: "16px", color: tokens.primary, fontWeight: 700 }}>YYC&#179;</span>
           )}
-          
+
         </div>
 
         <div className="flex items-center gap-1">
@@ -292,6 +339,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
               <CyberTooltip key={tab.key} label={t("navTabs", tab.key)}>
                 <button
                   onClick={() => { setActiveTab(i); setSelectedStat(stats[i]); }}
+                  aria-label={t("navTabs", tab.key)}
                   className="relative p-2 rounded transition-all"
                   style={{
                     color: isActive ? tokens.background : tokens.primary,
@@ -307,6 +355,41 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           })}
         </div>
 
+        {/* 自媒体创作引擎入口 */}
+        <div className="flex items-center gap-1 px-2" style={{ borderLeft: `1px solid ${tokens.borderDim}`, borderRight: `1px solid ${tokens.borderDim}` }}>
+          <CyberTooltip label="AI写作助手">
+            <button onClick={() => onOpenAIWriting?.()} className="p-1.5 rounded transition-all hover:opacity-80" style={{ color: tokens.primary }}>
+              <Sparkles size={14} />
+            </button>
+          </CyberTooltip>
+          <CyberTooltip label="内容模板">
+            <button onClick={() => onOpenContentTemplate?.()} className="p-1.5 rounded transition-all hover:opacity-80" style={{ color: tokens.primary }}>
+              <FileText size={14} />
+            </button>
+          </CyberTooltip>
+          <CyberTooltip label="素材管理器">
+            <button onClick={() => onOpenMaterialManager?.()} className="p-1.5 rounded transition-all hover:opacity-80" style={{ color: tokens.primary }}>
+              <ImageIcon size={14} />
+            </button>
+          </CyberTooltip>
+          <CyberTooltip label="多平台发布">
+            <button onClick={() => onOpenPublishQueue?.()} className="p-1.5 rounded transition-all hover:opacity-80" style={{ color: tokens.primary }}>
+              <Send size={14} />
+            </button>
+          </CyberTooltip>
+          <CyberTooltip label="热点选题">
+            <button onClick={() => onOpenTrendingTopics?.()} className="p-1.5 rounded transition-all hover:opacity-80" style={{ color: tokens.primary }}>
+              <Flame size={14} />
+            </button>
+          </CyberTooltip>
+          <div className="w-px h-4 mx-1" style={{ background: tokens.borderDim }} />
+          <CyberTooltip label="智能聊天">
+            <button onClick={() => onOpenChat?.()} className="p-1.5 rounded transition-all hover:opacity-80" style={{ color: tokens.accent || tokens.primary }}>
+              <MessageCircle size={14} />
+            </button>
+          </CyberTooltip>
+        </div>
+
         <div className="flex items-center gap-3">
           <ThemeSwitcher />
           <LangSwitcher />
@@ -314,6 +397,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           <CyberTooltip label={t("ide", "search")}>
             <button
               onClick={() => onOpenGlobalSearch?.()}
+              aria-label={t("ide", "search")}
               className="p-2 rounded transition-all hover:opacity-80"
               style={{ color: tokens.primary, border: `1px solid ${tokens.cardBorder}`, background: tokens.cardBg }}
             >
@@ -324,6 +408,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           <CyberTooltip label="⌘K">
             <button
               onClick={() => onOpenCommandPalette?.()}
+              aria-label="Command Palette"
               className="p-2 rounded transition-all hover:opacity-80"
               style={{ color: tokens.primary, border: `1px solid ${tokens.cardBorder}`, background: tokens.cardBg }}
             >
@@ -334,6 +419,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           <CyberTooltip label={t("ide", "settings")}>
             <button
               onClick={() => onOpenSettings?.()}
+              aria-label={t("ide", "settings")}
               className="p-2 rounded transition-all hover:opacity-80"
               style={{ color: tokens.primary, border: `1px solid ${tokens.cardBorder}`, background: tokens.cardBg }}
             >
@@ -344,6 +430,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           <CyberTooltip label={t("ide", "notifications")}>
             <button
               onClick={() => onOpenNotifications?.()}
+              aria-label={t("ide", "notifications")}
               className="p-2 rounded transition-all hover:opacity-80"
               style={{ color: tokens.primary, border: `1px solid ${tokens.cardBorder}`, background: tokens.cardBg }}
             >
@@ -367,6 +454,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
               {(() => {
                 const am = getActiveModel();
                 if (am) {
+                  const statusColor = getModelStatusColor();
                   const cs = connectivityMap[am.id];
                   return (
                     <>
@@ -374,11 +462,8 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
                       <div
                         className="w-1.5 h-1.5 rounded-full"
                         style={{
-                          background: cs?.status === "online" ? tokens.success
-                            : cs?.status === "checking" ? tokens.warning
-                            : cs?.status === "offline" ? tokens.error
-                            : tokens.foregroundMuted,
-                          boxShadow: cs?.status === "online" && isCyberpunk ? `0 0 6px ${tokens.success}` : "none",
+                          background: statusColor,
+                          boxShadow: (statusColor === tokens.success) && isCyberpunk ? `0 0 6px ${tokens.success}` : "none",
                           animation: cs?.status === "checking" ? "pulse 1.5s infinite" : "none",
                         }}
                       />
@@ -428,6 +513,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           <CyberTooltip label={t("ide", "ideMode")}>
             <button
               onClick={onSwitchToIDE}
+              aria-label={t("ide", "ideMode")}
               className="p-2 rounded transition-all hover:opacity-80"
               style={{
                 color: tokens.primary,
@@ -438,12 +524,23 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
               <Code2 size={14} />
             </button>
           </CyberTooltip>
+          {/* Connection status indicator - dynamic based on actual connectivity */}
           <CyberTooltip label={t("tooltips", "connStatus")}>
             <div className="flex items-center gap-2">
-              <Wifi size={14} color={tokens.success} style={{ filter: isCyberpunk ? `drop-shadow(0 0 4px ${tokens.success})` : "none" }} />
-              <div className="w-2 h-2 rounded-full" style={{ background: tokens.success, boxShadow: isCyberpunk ? `0 0 6px ${tokens.success}` : "none" }} />
+              {(() => {
+                const connColor = getModelStatusColor();
+                return (
+                  <>
+                    <Wifi size={14} color={connColor} style={{ filter: isCyberpunk ? `drop-shadow(0 0 4px ${connColor})` : "none" }} />
+                    <div className="w-2 h-2 rounded-full" style={{ background: connColor, boxShadow: (connColor === tokens.success) && isCyberpunk ? `0 0 6px ${tokens.success}` : "none" }} />
+                  </>
+                );
+              })()}
             </div>
           </CyberTooltip>
+          {/* 🎵 Mini Audio Player - 音乐播放器入口 */}
+          <div style={{ width: 1, height: 16, background: tokens.border, margin: '0 4px' }} />
+          <MiniAudioPlayer />
           <span style={{ fontFamily: tokens.fontMono, fontSize: "12px", color: tokens.primary }}>{currentTime}</span>
         </div>
       </nav>
@@ -709,9 +806,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
                             {msg.timestamp}
                           </span>
                         </div>
-                        <p style={{ fontFamily: tokens.fontBody, fontSize: "13px", color: tokens.foreground, lineHeight: "1.5" }}>
-                          {msg.content}
-                        </p>
+                        <AIMessageRenderer content={msg.content} />
                       </div>
                     </div>
                   ))}
@@ -766,6 +861,7 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
                     <CyberTooltip label={t("tooltips", "send")} position="top">
                       <button
                         onClick={handleSend}
+                        aria-label={t("tooltips", "send")}
                         className="p-1.5 rounded transition-all hover:opacity-80"
                         style={{ border: `1px solid ${tokens.border}` }}
                       >
@@ -854,8 +950,15 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
         <div className="flex items-center gap-4">
           <CyberTooltip label={t("tooltips", "sysMonitor")} position="top">
             <div className="flex items-center gap-1.5">
-              <Radio size={10} color={tokens.success} style={{ filter: isCyberpunk ? `drop-shadow(0 0 3px ${tokens.success})` : "none" }} />
-              <span style={{ fontFamily: tokens.fontMono, fontSize: "10px", color: tokens.success }}>{t("footer", "sysNominal")}</span>
+              {(() => {
+                const sysColor = getModelStatusColor();
+                return (
+                  <>
+                    <Radio size={10} color={sysColor} style={{ filter: isCyberpunk ? `drop-shadow(0 0 3px ${sysColor})` : "none" }} />
+                    <span style={{ fontFamily: tokens.fontMono, fontSize: "10px", color: sysColor }}>{t("footer", "sysNominal")}</span>
+                  </>
+                );
+              })()}
             </div>
           </CyberTooltip>
           <CyberTooltip label={t("tooltips", "threatMonitor")} position="top">
@@ -874,8 +977,8 @@ export function FullscreenMode({ onSwitchMode, onSwitchToIDE, onOpenSettings, on
           {(() => {
             const am = getActiveModel();
             if (!am) return null;
+            const statusColor = getModelStatusColor();
             const cs = connectivityMap[am.id];
-            const statusColor = cs?.status === "online" ? tokens.success : cs?.status === "checking" ? tokens.warning : cs?.status === "offline" ? tokens.error : tokens.foregroundMuted;
             return (
               <CyberTooltip label={t("tooltips", "modelStatus")} position="top">
                 <div className="flex items-center gap-1.5">

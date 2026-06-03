@@ -1,3 +1,14 @@
+/**
+ * @file quick-actions-store.test.ts
+ * @description Unit test for quick-actions-store
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [test],[unit]
+ */
+
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { quickActionsStore, ACTION_REGISTRY, type ActionContext } from '../quick-actions-store'

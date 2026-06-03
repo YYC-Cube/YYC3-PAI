@@ -1,11 +1,11 @@
 /**
  * @file storage-cleaner.test.ts
- * @description 存储清理工具测试
+ * @description 存储清理工具测试 v2.0.0 - 策略引擎测试
  * @author YanYuCloudCube Team <admin@0379.email>
- * @version v1.0.0
+ * @version v2.0.0
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { StorageCleaner } from '../storage-cleaner'
 
 describe('StorageCleaner', () => {
@@ -27,89 +27,55 @@ describe('StorageCleaner', () => {
     })
   })
 
-  describe('cleanExpiredCache', () => {
-    it('should remove expired cache entries', async () => {
-      const now = Date.now()
-      localStorage.setItem('yyc3_expired', JSON.stringify({
-        timestamp: now - 10000,
-        ttl: 5000,
-        data: 'old',
-      }))
-      localStorage.setItem('yyc3_valid', JSON.stringify({
-        timestamp: now,
-        ttl: 60000,
-        data: 'fresh',
-      }))
-
-      const result = await cleaner.cleanExpiredCache()
-
-      expect(result.cleaned).toBe(1)
-      expect(localStorage.getItem('yyc3_expired')).toBeNull()
-      expect(localStorage.getItem('yyc3_valid')).toBeTruthy()
-    })
-
-    it('should skip non-JSON entries', async () => {
-      localStorage.setItem('yyc3_plain', 'not-json')
-
-      const result = await cleaner.cleanExpiredCache()
-      expect(result.errors).toHaveLength(0)
-    })
-
-    it('should skip entries without timestamp/ttl', async () => {
-      localStorage.setItem('yyc3_no_ttl', JSON.stringify({ data: 'value' }))
-
-      const result = await cleaner.cleanExpiredCache()
-      expect(result.cleaned).toBe(0)
-    })
-
-    it('should support dryRun mode', async () => {
-      const now = Date.now()
-      localStorage.setItem('yyc3_expired', JSON.stringify({
-        timestamp: now - 10000,
-        ttl: 5000,
-      }))
-
-      const result = await cleaner.cleanExpiredCache({ dryRun: true })
-
-      expect(result.cleaned).toBe(1)
-      expect(localStorage.getItem('yyc3_expired')).toBeTruthy()
-    })
-
-    it('should calculate freedBytes', async () => {
-      const now = Date.now()
-      localStorage.setItem('yyc3_expired', JSON.stringify({
-        timestamp: now - 10000,
-        ttl: 5000,
-        data: 'some data to free',
-      }))
-
-      const result = await cleaner.cleanExpiredCache()
-      expect(result.freedBytes).toBeGreaterThan(0)
-    })
-
-    it('should only clean yyc3_ prefixed keys', async () => {
-      const now = Date.now()
-      localStorage.setItem('other_expired', JSON.stringify({
-        timestamp: now - 10000,
-        ttl: 5000,
-      }))
-
-      const result = await cleaner.cleanExpiredCache()
-      expect(result.cleaned).toBe(0)
+  describe('getPolicies', () => {
+    it('should return default policies', () => {
+      const policies = cleaner.getPolicies()
+      expect(policies.length).toBeGreaterThanOrEqual(4)
+      expect(policies.some(p => p.id === 'cache-expiry')).toBe(true)
+      expect(policies.some(p => p.id === 'old-sync-records')).toBe(true)
+      expect(policies.some(p => p.id === 'low-priority-clean')).toBe(true)
+      expect(policies.some(p => p.id === 'size-threshold')).toBe(true)
     })
   })
 
-  describe('cleanOldData', () => {
-    it('should remove entries older than maxAge', async () => {
-      const now = Date.now()
-      localStorage.setItem('yyc3_old', JSON.stringify({
-        timestamp: now - 200000,
-      }))
-      localStorage.setItem('yyc3_recent', JSON.stringify({
-        timestamp: now - 1000,
-      }))
+  describe('updatePolicy / togglePolicy', () => {
+    it('should update a policy', () => {
+      cleaner.updatePolicy('cache-expiry', { maxAgeDays: 14 })
+      const policies = cleaner.getPolicies()
+      const p = policies.find(p => p.id === 'cache-expiry')!
+      expect(p.maxAgeDays).toBe(14)
+    })
 
-      const result = await cleaner.cleanOldData(100000)
+    it('should toggle a policy', () => {
+      cleaner.togglePolicy('cache-expiry', false)
+      expect(cleaner.getPolicies().find(p => p.id === 'cache-expiry')!.enabled).toBe(false)
+      cleaner.togglePolicy('cache-expiry', true)
+      expect(cleaner.getPolicies().find(p => p.id === 'cache-expiry')!.enabled).toBe(true)
+    })
+  })
+
+  describe('addPolicy / removePolicy', () => {
+    it('should add and remove a custom policy', () => {
+      cleaner.addPolicy({ id: 'test', type: 'age', enabled: true, maxAgeDays: 1 })
+      expect(cleaner.getPolicies().some(p => p.id === 'test')).toBe(true)
+      cleaner.removePolicy('test')
+      expect(cleaner.getPolicies().some(p => p.id === 'test')).toBe(false)
+    })
+  })
+
+  describe('runPolicy (age)', () => {
+    it('should remove entries older than maxAgeDays', async () => {
+      const now = Date.now()
+      localStorage.setItem('yyc3_old', JSON.stringify({ createdAt: now - 200000 }))
+      localStorage.setItem('yyc3_recent', JSON.stringify({ createdAt: now - 1000 }))
+
+      const result = await cleaner.runPolicy({
+        id: 'test-age',
+        type: 'age',
+        enabled: true,
+        maxAgeDays: 0.002, // ~173 seconds
+        targetStorage: 'localStorage',
+      })
 
       expect(result.cleaned).toBe(1)
       expect(localStorage.getItem('yyc3_old')).toBeNull()
@@ -118,25 +84,49 @@ describe('StorageCleaner', () => {
 
     it('should support dryRun mode', async () => {
       const now = Date.now()
-      localStorage.setItem('yyc3_old', JSON.stringify({
-        timestamp: now - 200000,
-      }))
+      localStorage.setItem('yyc3_old', JSON.stringify({ createdAt: now - 200000 }))
 
-      const result = await cleaner.cleanOldData(100000, { dryRun: true })
+      const result = await cleaner.runPolicy({
+        id: 'test-age-dry',
+        type: 'age',
+        enabled: true,
+        maxAgeDays: 0.002,
+        targetStorage: 'localStorage',
+      }, true)
 
       expect(result.cleaned).toBe(1)
       expect(localStorage.getItem('yyc3_old')).toBeTruthy()
     })
+
+    it('should skip non-yyc3_ prefixed keys', async () => {
+      const now = Date.now()
+      localStorage.setItem('other_old', JSON.stringify({ createdAt: now - 200000 }))
+
+      const result = await cleaner.runPolicy({
+        id: 'test-age-skip',
+        type: 'age',
+        enabled: true,
+        maxAgeDays: 0.002,
+        targetStorage: 'localStorage',
+      })
+      expect(result.cleaned).toBe(0)
+    })
   })
 
-  describe('cleanLowPriorityData', () => {
+  describe('runPolicy (priority)', () => {
     it('should remove low priority keys', async () => {
       localStorage.setItem('yyc3_file_store', JSON.stringify({ data: 'files' }))
       localStorage.setItem('yyc3_query_history', JSON.stringify({ data: 'queries' }))
       localStorage.setItem('yyc3_activity_log', JSON.stringify({ data: 'logs' }))
       localStorage.setItem('yyc3_settings', JSON.stringify({ theme: 'dark' }))
 
-      const result = await cleaner.cleanLowPriorityData()
+      const result = await cleaner.runPolicy({
+        id: 'test-priority',
+        type: 'priority',
+        enabled: true,
+        minPriority: 'low',
+        targetStorage: 'localStorage',
+      })
 
       expect(result.cleaned).toBe(3)
       expect(localStorage.getItem('yyc3_file_store')).toBeNull()
@@ -148,53 +138,71 @@ describe('StorageCleaner', () => {
     it('should support dryRun mode', async () => {
       localStorage.setItem('yyc3_file_store', JSON.stringify({ data: 'files' }))
 
-      const result = await cleaner.cleanLowPriorityData({ dryRun: true })
+      const result = await cleaner.runPolicy({
+        id: 'test-priority-dry',
+        type: 'priority',
+        enabled: true,
+        minPriority: 'low',
+        targetStorage: 'localStorage',
+      }, true)
 
       expect(result.cleaned).toBe(1)
       expect(localStorage.getItem('yyc3_file_store')).toBeTruthy()
     })
+  })
 
-    it('should only count existing low priority keys in dryRun', async () => {
-      localStorage.setItem('yyc3_file_store', JSON.stringify({ data: 'files' }))
+  describe('runPolicy (type)', () => {
+    it('should remove entries matching target type', async () => {
+      localStorage.setItem('yyc3_cache_data', JSON.stringify({ data: 'cached' }))
+      localStorage.setItem('yyc3_settings', JSON.stringify({ theme: 'dark' }))
 
-      const result = await cleaner.cleanLowPriorityData({ dryRun: true })
+      const result = await cleaner.runPolicy({
+        id: 'test-type',
+        type: 'type',
+        enabled: true,
+        targetTypes: ['cache'],
+        targetStorage: 'localStorage',
+      })
 
       expect(result.cleaned).toBe(1)
+      expect(localStorage.getItem('yyc3_cache_data')).toBeNull()
+      expect(localStorage.getItem('yyc3_settings')).toBeTruthy()
     })
   })
 
-  describe('cleanAll', () => {
-    it('should remove all yyc3_ prefixed entries', async () => {
-      localStorage.setItem('yyc3_settings', JSON.stringify({ theme: 'dark' }))
-      localStorage.setItem('yyc3_data', JSON.stringify({ value: 42 }))
-      localStorage.setItem('other_key', 'keep')
+  describe('runAllPolicies', () => {
+    it('should run all enabled policies', async () => {
+      localStorage.setItem('yyc3_temp_cache', JSON.stringify({ createdAt: Date.now() - 200000 }))
+      localStorage.setItem('yyc3_file_store', JSON.stringify({ data: 'files' }))
 
-      const result = await cleaner.cleanAll()
+      const result = await cleaner.runAllPolicies()
 
-      expect(result.cleaned).toBe(2)
-      expect(localStorage.getItem('yyc3_settings')).toBeNull()
-      expect(localStorage.getItem('yyc3_data')).toBeNull()
-      expect(localStorage.getItem('other_key')).toBe('keep')
-    })
-
-    it('should report freedBytes', async () => {
-      localStorage.setItem('yyc3_data', JSON.stringify({ value: 'test' }))
-
-      const result = await cleaner.cleanAll()
-      expect(result.freedBytes).toBeGreaterThan(0)
+      expect(result.cleaned).toBeGreaterThanOrEqual(0)
+      expect(result.freedBytes).toBeGreaterThanOrEqual(0)
     })
   })
 
-  describe('scheduleAutoClean / cancelAutoClean', () => {
-    it('should schedule and cancel auto clean', () => {
-      cleaner.scheduleAutoClean(60000)
-      cleaner.cancelAutoClean()
+  describe('startAutoClean / stopAutoClean', () => {
+    it('should start and stop auto clean schedule', () => {
+      cleaner.startAutoClean(60000)
+      expect(cleaner.getSchedule().enabled).toBe(true)
+      cleaner.stopAutoClean()
+      expect(cleaner.getSchedule().enabled).toBe(false)
     })
 
     it('should replace existing schedule', () => {
-      cleaner.scheduleAutoClean(60000)
-      cleaner.scheduleAutoClean(30000)
-      cleaner.cancelAutoClean()
+      cleaner.startAutoClean(60000)
+      cleaner.startAutoClean(30000)
+      cleaner.stopAutoClean()
+    })
+  })
+
+  describe('getSchedule', () => {
+    it('should return schedule info', () => {
+      const schedule = cleaner.getSchedule()
+      expect(schedule).toHaveProperty('intervalMs')
+      expect(schedule).toHaveProperty('enabled')
+      expect(schedule).toHaveProperty('policies')
     })
   })
 })

@@ -1,4 +1,15 @@
 /**
+ * @file useAgent.test.ts
+ * @description Unit test for useAgent
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [test],[unit]
+ */
+
+/**
  * YYC³ AI - useAgent Hook测试
  *
  * 测试覆盖所有Hook功能和辅助函数

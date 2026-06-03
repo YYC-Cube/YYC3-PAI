@@ -1,12 +1,14 @@
 /**
- * YYC³ AI - Agent Store
- *
- * AI Agent状态管理系统
- * 实现PDA+记忆+反思架构
- * 支持多Agent协作和能力系统(Skills)
+ * @file agent-store.ts
+ * @description AI Agent 工作流系统核心状态管理 · PDA+记忆+反思架构 · 多Agent协作
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-04-08
+ * @updated 2026-05-06
+ * @status active
+ * @tags [store],[agent],[ai],[workflow]
  *
  * @module store/agent-store
- * @description AI Agent工作流系统核心状态管理
  */
 
 import { create } from 'zustand';

@@ -5,9 +5,9 @@
  * @version v1.0.0
  */
 
-import { describe, it, expect, beforeEach } from 'vitest'
-import { useUnifiedDataStore } from '../unified-data-store'
 import { act } from '@testing-library/react'
+import { beforeEach, describe, expect, it } from 'vitest'
+import { useUnifiedDataStore } from '../unified-data-store'
 
 describe('useUnifiedDataStore', () => {
   beforeEach(() => {
@@ -29,9 +29,11 @@ describe('useUnifiedDataStore', () => {
       store.security = {
         vaultLocked: true,
         encryptionEnabled: false,
+        initialized: false,
         keyDerivationIterations: 100000,
         lastAuditTime: Date.now(),
         securityScore: 85,
+        secureItemCount: 0,
       }
       store.portability = {
         exportInProgress: false,
@@ -175,56 +177,49 @@ describe('useUnifiedDataStore', () => {
     })
   })
 
-  describe('encryptEntry / decryptEntry', () => {
-    it('should encrypt an entry', async () => {
-      localStorage.setItem('yyc3_settings', '{}')
+  describe('setSensitive / getSensitive', () => {
+    it('should store and retrieve sensitive data', async () => {
       await act(async () => {
-        await useUnifiedDataStore.getState().scanData()
+        await useUnifiedDataStore.getState().setSensitive('api-key-openai', 'sk-test-key-12345', {
+          type: 'api-key',
+          provider: 'openai',
+        })
       })
 
-      const entryId = useUnifiedDataStore.getState().entries[0].id
-      await act(async () => {
-        await useUnifiedDataStore.getState().encryptEntry(entryId, 'passphrase')
+      const value = await act(async () => {
+        return await useUnifiedDataStore.getState().getSensitive('api-key-openai')
       })
 
-      const entry = useUnifiedDataStore.getState().entries.find(e => e.id === entryId)
-      expect(entry?.encrypted).toBe(true)
-      expect(entry?.status).toBe('encrypted')
+      expect(value).toBe('sk-test-key-12345')
     })
 
-    it('should decrypt an entry', async () => {
-      localStorage.setItem('yyc3_settings', '{}')
+    it('should remove sensitive data', async () => {
       await act(async () => {
-        await useUnifiedDataStore.getState().scanData()
+        await useUnifiedDataStore.getState().setSensitive('api-key-test', 'test-value')
+      })
+      await act(async () => {
+        await useUnifiedDataStore.getState().removeSensitive('api-key-test')
       })
 
-      const entryId = useUnifiedDataStore.getState().entries[0].id
-      await act(async () => {
-        await useUnifiedDataStore.getState().encryptEntry(entryId, 'passphrase')
+      const value = await act(async () => {
+        return await useUnifiedDataStore.getState().getSensitive('api-key-test')
       })
-      await act(async () => {
-        await useUnifiedDataStore.getState().decryptEntry(entryId, 'passphrase')
-      })
-
-      const entry = useUnifiedDataStore.getState().entries.find(e => e.id === entryId)
-      expect(entry?.encrypted).toBe(false)
-      expect(entry?.status).toBe('synced')
+      expect(value).toBeNull()
     })
   })
 
-  describe('deleteEntry', () => {
-    it('should delete an entry and remove from localStorage', async () => {
+  describe('removeData', () => {
+    it('should remove an entry from localStorage', async () => {
       localStorage.setItem('yyc3_settings', '{}')
       await act(async () => {
         await useUnifiedDataStore.getState().scanData()
       })
 
-      const entryId = useUnifiedDataStore.getState().entries[0].id
       await act(async () => {
-        await useUnifiedDataStore.getState().deleteEntry(entryId)
+        await useUnifiedDataStore.getState().removeData('settings')
       })
 
-      expect(useUnifiedDataStore.getState().entries).toHaveLength(0)
+      expect(useUnifiedDataStore.getState().entries.length).toBe(0)
       expect(localStorage.getItem('yyc3_settings')).toBeNull()
     })
   })
@@ -246,7 +241,7 @@ describe('useUnifiedDataStore', () => {
 
       const text = await blob!.text()
       const data = JSON.parse(text)
-      expect(data.version).toBe('1.0.0')
+      expect(data.version).toBe('2.0.0')
       expect(data.entries).toBeInstanceOf(Array)
     })
 
@@ -260,7 +255,7 @@ describe('useUnifiedDataStore', () => {
       const entryId = useUnifiedDataStore.getState().entries[0].id
       let blob: Blob | undefined
       await act(async () => {
-        blob = await useUnifiedDataStore.getState().exportData('json', [entryId])
+        blob = await useUnifiedDataStore.getState().exportData('json', { entries: [entryId] })
       })
 
       const text = await blob!.text()

@@ -1,4 +1,15 @@
 /**
+ * @file AgentWorkflowPanel.tsx
+ * @description YYC³ AI-PAI Agent Workflow Panel.tsx component
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [component]
+ */
+
+/**
  * YYC³ AI - Agent Workflow Panel
  *
  * AI Agent工作流可视化面板

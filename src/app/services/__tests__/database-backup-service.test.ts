@@ -163,26 +163,31 @@ describe('DatabaseBackupService', () => {
 
   describe('executeRestore - 恢复执行', () => {
     it('应该成功执行恢复操作', async () => {
-      const preview = await service.getRestorePreview(
-        'restore-conn-id',
-        'restore-backup-id',
-        'restore_test.sql.gz',
-        1024 * 1024 * 2
-      )
+      const randomSpy = vi.spyOn(Math, 'random').mockReturnValue(0.5)
+      try {
+        const preview = await service.getRestorePreview(
+          'restore-conn-id',
+          'restore-backup-id',
+          'restore_test.sql.gz',
+          1024 * 1024 * 2
+        )
 
-      const progressCallback = vi.fn()
-      const result = await service.executeRestore(
-        'restore-conn-id',
-        'restore-backup-id',
-        preview,
-        progressCallback
-      )
+        const progressCallback = vi.fn()
+        const result = await service.executeRestore(
+          'restore-conn-id',
+          'restore-backup-id',
+          preview,
+          progressCallback
+        )
 
-      expect(result.success).toBe(true)
-      expect(result.restoredTables.length).toBeGreaterThan(0)
-      expect(result.restoredRecords).toBeGreaterThan(0)
-      expect(result.durationMs).toBeGreaterThan(0)
-      expect(Array.isArray(result.warnings)).toBe(true)
+        expect(result.success).toBe(true)
+        expect(result.restoredTables.length).toBeGreaterThan(0)
+        expect(result.restoredRecords).toBeGreaterThan(0)
+        expect(result.durationMs).toBeGreaterThan(0)
+        expect(Array.isArray(result.warnings)).toBe(true)
+      } finally {
+        randomSpy.mockRestore()
+      }
     }, 15000)
 
     it('应该调用恢复进度回调', async () => {

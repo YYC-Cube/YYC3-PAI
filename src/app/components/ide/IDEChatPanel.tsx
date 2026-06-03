@@ -11,20 +11,30 @@
  * @license MIT
  */
 
-import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import {
-  Bot, Plus, Image, FolderOpen, Link, Code, Clipboard, ChevronRight,
-  Send, Plug,
+    Bot,
+    ChevronRight,
+    Clipboard,
+    Code,
+    Figma,
+    FolderOpen,
+    Image,
+    Link,
+    Plug,
+    Plus,
+    Send,
 } from "lucide-react";
-import { Figma } from "lucide-react";
-import { CyberTooltip } from "../CyberTooltip";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useI18n } from "../../i18n/context";
 import { useModelStore } from "../../store/model-store";
-import { useThemeStore } from "../../store/theme-store";
 import { useProjectStore } from "../../store/project-store";
 import { settingsActions } from "../../store/settings-store";
-import { cyberToast } from "../CyberToast";
+import { useThemeStore } from "../../store/theme-store";
 import type { ChatMessage } from "../../types";
+import { cyberToast } from "../CyberToast";
+import { CyberTooltip } from "../CyberTooltip";
+import { AIMessageActions } from "./AIMessageActions";
+import { AIMessageRenderer } from "./AIMessageRenderer";
 
 const responseKeys = ["response1", "response2", "response3", "response4"] as const;
 
@@ -157,13 +167,14 @@ export function IDEChatPanel() {
       {/* Model indicator */}
       <div className="px-3 py-1.5 border-b" style={{ borderColor }}>
         <button onClick={() => openModelSettings()} className="flex items-center gap-1.5 w-full text-left"
+          aria-label={t("modelSettings", "modelConfig")}
           style={{ fontFamily: tokens.fontMono, fontSize: "9px", color: activeModelId ? tokens.success : tokens.foregroundMuted }}>
           <Bot size={10} />
           <span>{(() => { const am = getActiveModel(); return am ? am.name : t("modelSettings", "noActiveModel"); })()}</span>
-          {(() => { const am = getActiveModel(); if (!am) return null; const cs = connectivityMap[am.id]; return (
+          {(() => { const am = getActiveModel(); if (!am) return null; const cs = connectivityMap[am.id]; const isOnline = cs?.status === "online"; return (
             <div className="w-1.5 h-1.5 rounded-full ml-auto" style={{
-              background: cs?.status === "online" ? tokens.success : cs?.status === "checking" ? tokens.warning : cs?.status === "offline" ? tokens.error : tokens.foregroundMuted,
-              boxShadow: cs?.status === "online" && isCyberpunk ? `0 0 4px ${tokens.success}` : "none",
+              background: isOnline || !cs ? tokens.success : cs?.status === "checking" ? tokens.warning : tokens.error,
+              boxShadow: (isOnline || !cs) && isCyberpunk ? `0 0 4px ${tokens.success}` : "none",
               animation: cs?.status === "checking" ? "pulse 1.5s infinite" : "none",
             }} />
           ); })()}
@@ -196,7 +207,10 @@ export function IDEChatPanel() {
                 </span>
                 <span style={{ fontFamily: tokens.fontMono, fontSize: "8px", color: tokens.foregroundMuted }}>{msg.timestamp}</span>
               </div>
-              <p style={{ fontFamily: tokens.fontBody, fontSize: "12px", color: tokens.foreground, lineHeight: "1.4" }}>{msg.content}</p>
+              <AIMessageRenderer content={msg.content} />
+              {msg.role === "ai" && (
+                <AIMessageActions content={msg.content} onRegenerate={() => {}} isRegenerating={false} />
+              )}
             </div>
           </div>
         ))}
@@ -218,6 +232,7 @@ export function IDEChatPanel() {
         <div className="flex items-center gap-1 mb-2">
           <CyberTooltip label={t("ide", "expandMenu")} position="top">
             <button onClick={() => setChatToolbarOpen(!chatToolbarOpen)} className="p-1 rounded transition-all"
+              aria-label={t("ide", "expandMenu")}
               style={{ color: chatToolbarOpen ? tokens.background : tokens.primary, background: chatToolbarOpen ? tokens.primary : "transparent", border: `1px solid ${chatToolbarOpen ? tokens.primary : tokens.border}` }}>
               <Plus size={11} />
             </button>
@@ -234,6 +249,7 @@ export function IDEChatPanel() {
               ].map((item, idx) => (
                 <CyberTooltip key={idx} label={item.label} position="top">
                   <button onClick={() => cyberToast(t("notify", item.notifyKey))} className="p-1 rounded transition-all hover:bg-white/5"
+                    aria-label={item.label}
                     style={{ color: tokens.primary, border: `1px solid ${tokens.borderDim}` }}>
                     <item.icon size={10} />
                   </button>
@@ -250,7 +266,9 @@ export function IDEChatPanel() {
             className="flex-1 bg-transparent outline-none resize-none neon-scrollbar"
             style={{ fontFamily: tokens.fontMono, fontSize: "11px", color: tokens.primary, caretColor: tokens.primary, lineHeight: "1.5" }} />
           <CyberTooltip label={t("tooltips", "send")} position="top">
-            <button onClick={handleChatSend} className="p-1 rounded transition-all hover:opacity-80" style={{ border: `1px solid ${tokens.border}`, marginTop: 2 }}>
+            <button onClick={handleChatSend} className="p-1 rounded transition-all hover:opacity-80"
+              aria-label={t("tooltips", "send")}
+              style={{ border: `1px solid ${tokens.border}`, marginTop: 2 }}>
               <Send size={12} color={tokens.primary} />
             </button>
           </CyberTooltip>

@@ -278,8 +278,22 @@ export interface FileNode {
 }
 
 // ===== Chat Types =====
+export type MessageStatus = 'streaming' | 'complete' | 'error' | 'retrying'
+export type FeedbackType = 'positive' | 'negative' | null
+
+export interface TokenUsage {
+  prompt: number
+  completion: number
+  total: number
+}
+
 export interface ChatMessage {
   role: 'user' | 'ai'
   content: string
   timestamp?: string
+  modelId?: string
+  latencyMs?: number
+  status?: MessageStatus
+  feedback?: FeedbackType
+  tokenUsage?: TokenUsage
 }

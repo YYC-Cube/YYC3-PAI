@@ -151,7 +151,7 @@ export interface UseIntelligentWorkflowReturn {
  *   const handleConvert = async () => {
  *     const result = await naturalLanguageToWorkflow('自动构建并部署代码')
  *     if (result.success) {
- *       console.log('Created workflow:', result.workflow)
+ *       // console.log('Created workflow:', result.workflow)
  *     }
  *   }
  *

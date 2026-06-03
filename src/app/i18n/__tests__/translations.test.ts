@@ -1,4 +1,15 @@
 /**
+ * @file translations.test.ts
+ * @description Unit test for translations
+ * @author YanYuCloudCube Team
+ * @version v1.0.0
+ * @created 2026-05-06
+ * @updated 2026-05-06
+ * @status active
+ * @tags [test],[unit]
+ */
+
+/**
  * YYC3 i18n Translations — Completeness Tests
  * @description 验证所有翻译 section 的中英双语键完整性
  * @version 4.8.0
