@@ -40,7 +40,7 @@ export interface CommandDeps {
   /** 主题相关 */
   isCyberpunk: boolean
   toggleTheme: () => void
-  setTheme: (theme: string) => void
+  setTheme: (theme: 'cyberpunk' | 'clean') => void
   /** 国际化 */
   toggleLocale: () => void
   /** 模型设置 */

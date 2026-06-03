@@ -125,7 +125,7 @@ function AppContent() {
 
   // ===== Centralized panel actions — custom event bridge =====
   const switchToIDE = useCallback(() => setMode("ide"), [])
-  const [cheatSheetVisible, setCheatSheetVisible] = useState(false)
+  const [_cheatSheetVisible, setCheatSheetVisible] = useState(false)
 
   // ===== Cross-Panel Communication (自媒体创作引擎全链路) =====
   useEffect(() => {
