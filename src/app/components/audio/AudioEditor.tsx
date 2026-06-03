@@ -4,16 +4,19 @@
  */
 
 import {
-    Check,
-    Pause,
-    Play,
-    RotateCcw,
-    Trash2,
-    Volume2,
-    X
+  Check,
+  Pause,
+  Play,
+  RotateCcw,
+  Trash2,
+  Volume2,
+  X
 } from 'lucide-react'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { getAudioEngine, type AudioTrack, type EditedAudio } from '../../utils/audio-engine'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('AudioEditor')
 
 interface AudioEditorProps {
   track: AudioTrack
@@ -86,7 +89,7 @@ export function AudioEditor({ track, onSave, onCancel, className = '' }: AudioEd
       drawWaveform(filteredData)
       audioContext.close()
     } catch (_error) {
-      console.warn('[YYC3 Audio] Failed to generate waveform')
+      logger.warn('[YYC3 Audio] Failed to generate waveform')
     }
   }
 

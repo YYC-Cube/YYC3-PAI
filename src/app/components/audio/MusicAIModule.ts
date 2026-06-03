@@ -3,7 +3,10 @@
  * @description AI音乐智能模块 - 歌词翻译 + 封面生成 + 情感分析
  */
 
+import { createLogger } from '../../utils/logger'
 import type { TrackInfo } from './EnhancedAudioPlayerV3'
+
+const logger = createLogger('MusicAIModule')
 
 export interface LyricTranslation {
   original: string
@@ -74,7 +77,7 @@ export class MusicAI {
         confidence: item.confidence || 0.8
       }))
     } catch (error) {
-      console.error('[MusicAI] 歌词翻译失败:', error)
+      logger.error('[MusicAI] 歌词翻译失败:', error)
       return lyrics.split('\n').filter(Boolean).map(line => ({
         original: line,
         translated: `[翻译失败] ${line}`,
@@ -237,7 +240,7 @@ export class MusicAI {
       const cleaned = result.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim()
       return JSON.parse(cleaned)
     } catch (error) {
-      console.error('[MusicAI] 情感分析失败:', error)
+      logger.error('[MusicAI] 情感分析失败:', error)
       return {
         mood: 'calm',
         energy: 0.5,

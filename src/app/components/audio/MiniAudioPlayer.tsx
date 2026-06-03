@@ -7,7 +7,10 @@ import { Music, Pause } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
 import { useThemeStore } from '../../store/theme-store'
 import { getAudioEngine } from '../../utils/audio-engine'
+import { createLogger } from '../../utils/logger'
 import { EnhancedAudioPlayerV3 } from './EnhancedAudioPlayerV3'
+
+const logger = createLogger('MiniAudioPlayer')
 
 interface MiniAudioPlayerProps {
   onOpenFullPlayer?: () => void
@@ -33,7 +36,7 @@ export function MiniAudioPlayer({ onOpenFullPlayer: _onOpenFullPlayer, className
           tracks = audioEngine.getTracks()
         }
       } catch (error) {
-        console.error('[YYC3 MiniPlayer] ❌ 初始化失败:', error)
+        logger.error('[YYC3 MiniPlayer] ❌ 初始化失败:', error)
       }
     }
 
@@ -74,7 +77,7 @@ export function MiniAudioPlayer({ onOpenFullPlayer: _onOpenFullPlayer, className
         }
       }
     } catch (error) {
-      console.error('[YYC3 MiniPlayer] ❌ 播放失败:', error)
+      logger.error('[YYC3 MiniPlayer] ❌ 播放失败:', error)
     }
   }, [isPlaying, audioEngine])
 

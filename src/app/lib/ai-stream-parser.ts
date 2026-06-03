@@ -69,7 +69,7 @@ export function createAIStreamParser() {
             if (content) {
               yield { content, done: false };
             }
-          } catch (e) {
+          } catch {
             // 忽略解析错误 / Ignore parse errors
           }
         }

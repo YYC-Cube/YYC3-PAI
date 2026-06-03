@@ -22,6 +22,7 @@ import {
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useModelStore } from '../../store/model-store'
 import { useThemeStore } from '../../store/theme-store'
+import { createLogger } from '../../utils/logger'
 import {
   CROSSFADE_CURVES,
   CrossfadeProcessor,
@@ -39,6 +40,8 @@ import {
   type GiftType,
   type TimedComment
 } from './MusicSocialModule'
+
+const logger = createLogger('MusicFeaturePanels')
 
 // ── 共享样式 ──
 
@@ -108,7 +111,7 @@ export function AILyricsTranslatePanel({ isOpen, onClose, lyrics, trackName }: {
       const result = await musicAI.current.translateLyrics(lyrics, targetLang)
       setTranslations(result)
     } catch (error) {
-      console.error('[LyricsTranslate] 翻译失败:', error)
+      logger.error('[LyricsTranslate] 翻译失败:', error)
     } finally {
       setIsTranslating(false)
     }
@@ -336,7 +339,7 @@ export function AIEmotionAnalysisPanel({ isOpen, onClose, trackName, artist }: {
       })
       setAnalysis(result)
     } catch (error) {
-      console.error('[EmotionAnalysis] 分析失败:', error)
+      logger.error('[EmotionAnalysis] 分析失败:', error)
     } finally {
       setIsAnalyzing(false)
     }

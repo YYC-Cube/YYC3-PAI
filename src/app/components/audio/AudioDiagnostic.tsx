@@ -7,6 +7,9 @@ import { AlertCircle, CheckCircle2, Loader2, Play, RefreshCw, Square, Trash2, XC
 import { useCallback, useEffect, useState } from 'react'
 import { useThemeStore } from '../../store/theme-store'
 import { getAudioEngine } from '../../utils/audio-engine'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('AudioDiagnostic')
 
 interface DiagnosticResult {
   id: string
@@ -242,7 +245,7 @@ export function AudioDiagnostic({ onClose }: { onClose: () => void }) {
         fixable: !canAutoplay
       })
     } catch (err) {
-      console.warn('[YYC3 Diagnostic] 自动播放检测跳过:', err)
+      logger.warn('[YYC3 Diagnostic] 自动播放检测跳过:', err)
       updateResult('autoplay', {
         status: 'success',
         message: '自动播放策略未限制',
@@ -337,7 +340,7 @@ export function AudioDiagnostic({ onClose }: { onClose: () => void }) {
         details: `${tracks.length} 首歌曲`
       })
     } catch (error) {
-      console.error('[YYC3 Diagnostic] ❌ 重新加载失败:', error)
+      logger.error('[YYC3 Diagnostic] ❌ 重新加载失败:', error)
       updateResult('cache', {
         status: 'error',
         message: '重新加载失败',
@@ -522,9 +525,9 @@ export function AudioDiagnostic({ onClose }: { onClose: () => void }) {
             className="p-3 rounded transition-all"
             style={{
               backgroundColor: result.status === 'error' ? 'rgba(239,68,68,0.1)' :
-                               result.status === 'warning' ? 'rgba(245,158,11,0.1)' :
-                               result.status === 'success' ? 'rgba(16,185,129,0.1)' :
-                               'transparent',
+                result.status === 'warning' ? 'rgba(245,158,11,0.1)' :
+                  result.status === 'success' ? 'rgba(16,185,129,0.1)' :
+                    'transparent',
               borderLeft: `3px solid ${getStatusColor(result.status)}`,
             }}
           >
@@ -546,9 +549,9 @@ export function AudioDiagnostic({ onClose }: { onClose: () => void }) {
                     }}
                   >
                     {result.status === 'running' ? '检测中...' :
-                     result.status === 'success' ? '✓ 正常' :
-                     result.status === 'warning' ? '⚠ 警告' :
-                     result.status === 'error' ? '✗ 错误' : '等待'}
+                      result.status === 'success' ? '✓ 正常' :
+                        result.status === 'warning' ? '⚠ 警告' :
+                          result.status === 'error' ? '✗ 错误' : '等待'}
                   </span>
                 </div>
 
@@ -595,10 +598,10 @@ export function AudioDiagnostic({ onClose }: { onClose: () => void }) {
           className="text-xs p-2 rounded text-center"
           style={{
             backgroundColor: hasErrors ? 'rgba(239,68,68,0.1)' :
-                             hasWarnings ? 'rgba(245,158,11,0.1)' :
-                             'rgba(16,185,129,0.1)',
+              hasWarnings ? 'rgba(245,158,11,0.1)' :
+                'rgba(16,185,129,0.1)',
             color: hasErrors ? '#ef4444' :
-                   hasWarnings ? '#f59e0b' : '#10b981',
+              hasWarnings ? '#f59e0b' : '#10b981',
           }}
         >
           {hasErrors && '❌ 发现问题，请点击"一键修复"'}
@@ -668,13 +671,13 @@ export function AudioDiagnostic({ onClose }: { onClose: () => void }) {
           className="text-xs px-2 py-1 rounded mb-2 inline-block"
           style={{
             backgroundColor: playTestStatus === 'success' ? 'rgba(16,185,129,0.2)' :
-                             playTestStatus === 'error' ? 'rgba(239,68,68,0.2)' :
-                             playTestStatus === 'playing' ? 'rgba(59,130,246,0.2)' :
-                             'rgba(107,114,128,0.2)',
+              playTestStatus === 'error' ? 'rgba(239,68,68,0.2)' :
+                playTestStatus === 'playing' ? 'rgba(59,130,246,0.2)' :
+                  'rgba(107,114,128,0.2)',
             color: playTestStatus === 'success' ? '#10b981' :
-                   playTestStatus === 'error' ? '#ef4444' :
-                   playTestStatus === 'playing' ? tokens.primary :
-                   '#6b7280',
+              playTestStatus === 'error' ? '#ef4444' :
+                playTestStatus === 'playing' ? tokens.primary :
+                  '#6b7280',
           }}
         >
           {playTestStatus === 'idle' && '⏸️ 等待测试'}

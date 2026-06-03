@@ -11,14 +11,17 @@
  * @tags editor,code,ui,component
  */
 
-import { useRef, useEffect, useCallback, useMemo, useState, useImperativeHandle, forwardRef, type ReactNode, Component } from 'react'
-import { useCollabStore, type CollabUser } from '../store/collab-store'
-import { useThemeStore } from '../store/theme-store'
-import { useEditorPrefs } from '../store/editor-prefs-store'
-import { useCursorThrottle } from '../services/collaboration-cursor-throttle'
-import { AlertTriangle, Code } from 'lucide-react'
-import type { MonacoEditorInstance, MonacoNamespace, MonacoDecoration, CursorPositionEvent, CursorSelectionEvent } from '../types/monaco'
 import type { EditorProps } from '@monaco-editor/react'
+import { AlertTriangle, Code } from 'lucide-react'
+import { Component, forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useCursorThrottle } from '../services/collaboration-cursor-throttle'
+import { useCollabStore, type CollabUser } from '../store/collab-store'
+import { useEditorPrefs } from '../store/editor-prefs-store'
+import { useThemeStore } from '../store/theme-store'
+import type { CursorPositionEvent, CursorSelectionEvent, MonacoDecoration, MonacoEditorInstance, MonacoNamespace } from '../types/monaco'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('CyberEditor')
 
 // Clean Modern theme for Monaco
 const CLEAN_THEME_DATA = {
@@ -81,7 +84,7 @@ class MonacoErrorBoundary extends Component<
   state = { hasError: false }
   static getDerivedStateFromError() { return { hasError: true } }
   componentDidCatch(err: Error) {
-    console.warn('[CyberEditor] Monaco failed to load:', err.message)
+    logger.warn('[CyberEditor] Monaco failed to load:', err.message)
   }
   render() {
     return this.state.hasError ? this.props.fallback : this.props.children
@@ -276,7 +279,7 @@ export const CyberEditor = forwardRef<CyberEditorHandle, CyberEditorProps>(funct
         if (!cancelled) setMonacoEditor(() => mod.default)
       })
       .catch((err) => {
-        console.warn('[CyberEditor] Failed to load Monaco:', err)
+        logger.warn('[CyberEditor] Failed to load Monaco:', err)
         if (!cancelled) setLoadFailed(true)
       })
     return () => { cancelled = true }

@@ -31,6 +31,9 @@ import {
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useThemeStore } from '../../store/theme-store'
 import { getAudioEngine } from '../../utils/audio-engine'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('EnhancedAudioPlayer')
 
 // ── 类型定义 ──
 interface LyricLine {
@@ -254,7 +257,7 @@ export function EnhancedAudioPlayer({ isOpen, onClose }: EnhancedAudioPlayerProp
           analyserRef.current.connect(audioContextRef.current.destination)
         }
       } catch (error) {
-        console.error('[EnhancedPlayer] 可视化初始化失败:', error)
+        logger.error('[EnhancedPlayer] 可视化初始化失败:', error)
       }
     }
 
@@ -422,7 +425,7 @@ export function EnhancedAudioPlayer({ isOpen, onClose }: EnhancedAudioPlayerProp
         }
       }
     } catch (error) {
-      console.error('[EnhancedPlayer] ❌ 播放失败:', error)
+      logger.error('[EnhancedPlayer] ❌ 播放失败:', error)
     }
   }, [isPlaying, tracks])
 
@@ -461,7 +464,7 @@ export function EnhancedAudioPlayer({ isOpen, onClose }: EnhancedAudioPlayerProp
       await audioEngine.play(trackId)
       setIsPlaying(true)
     } catch (error) {
-      console.error('[EnhancedPlayer] ❌ 切换歌曲失败:', error)
+      logger.error('[EnhancedPlayer] ❌ 切换歌曲失败:', error)
     }
   }, [])
 

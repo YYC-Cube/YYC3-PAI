@@ -34,6 +34,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { useI18n } from '../i18n/context'
 import { useThemeStore } from '../store/theme-store'
 import { useUnifiedDataStore, type DataEntry, type DataType } from '../store/unified-data-store'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('UnifiedDataPanel')
 
 // ============================================================================
 // 子组件
@@ -324,7 +327,7 @@ export const UnifiedDataPanel: React.FC<{
       a.click()
       URL.revokeObjectURL(url)
     } catch (error) {
-      console.error('Export failed:', error)
+      logger.error('Export failed:', error)
     } finally {
       setIsExporting(false)
     }
@@ -339,7 +342,7 @@ export const UnifiedDataPanel: React.FC<{
       await importData(file)
       await scanData()
     } catch (error) {
-      console.error('Import failed:', error)
+      logger.error('Import failed:', error)
     } finally {
       setIsImporting(false)
     }
@@ -373,7 +376,7 @@ export const UnifiedDataPanel: React.FC<{
       setPassphraseModal(null)
       setPassphrase('')
     } catch (error) {
-      console.error('Passphrase operation failed:', error)
+      logger.error('Passphrase operation failed:', error)
     }
   }, [passphraseModal, passphrase, entries, setSensitive, getSensitive])
 

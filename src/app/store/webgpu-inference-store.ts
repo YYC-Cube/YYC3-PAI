@@ -465,8 +465,7 @@ export const useWebGPUInferenceStore = create<WebGPUInferenceStoreState & WebGPU
 
         // 检查WebGPU支持
         if ('gpu' in navigator) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const adapter = await (navigator as any).gpu.requestAdapter()
+          const adapter = await navigator.gpu!.requestAdapter()
           if (adapter) {
             set((state) => {
               state.webGPUSupported = true
@@ -497,7 +496,7 @@ export const useWebGPUInferenceStore = create<WebGPUInferenceStoreState & WebGPU
         logger.info('[WebGPU] WASM mode (fallback)')
         return true
       } catch (error) {
-        console.error('[WebGPU] Initialization failed:', error)
+        logger.error('[WebGPU] Initialization failed:', error)
         set((state) => {
           state.webGPUSupported = false
           state.engineType = 'wasm'
@@ -592,7 +591,7 @@ export const useWebGPUInferenceStore = create<WebGPUInferenceStoreState & WebGPU
 
         logger.info(`[WebGPU] Model ${modelId} loaded successfully`)
       } catch (error) {
-        console.error(`[WebGPU] Failed to load model ${modelId}:`, error)
+        logger.error(`[WebGPU] Failed to load model ${modelId}:`, error)
         set((state) => {
           state.isLoadingModel = false
           const m = state.models.get(modelId)
@@ -703,7 +702,7 @@ export const useWebGPUInferenceStore = create<WebGPUInferenceStoreState & WebGPU
         logger.info(`[WebGPU] Inference completed in ${inferenceTime.toFixed(0)}ms`)
         return output
       } catch (error) {
-        console.error(`[WebGPU] Inference failed:`, error)
+        logger.error(`[WebGPU] Inference failed:`, error)
         set((state) => {
           const task = state.tasks.find((t) => t.id === taskId)
           if (task) {
@@ -754,7 +753,7 @@ export const useWebGPUInferenceStore = create<WebGPUInferenceStoreState & WebGPU
     preloadModel: async (modelId) => {
       const model = get().models.get(modelId)
       if (!model) {
-        console.warn(`[WebGPU] Model ${modelId} not found for preload`)
+        logger.warn(`[WebGPU] Model ${modelId} not found for preload`)
         return
       }
 

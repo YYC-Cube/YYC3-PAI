@@ -4,25 +4,28 @@
  */
 
 import {
-    Activity,
-    ChevronDown,
-    ChevronUp,
-    ListMusic,
-    Music,
-    Scissors,
-    Stethoscope,
-    Upload,
-    Volume2,
-    VolumeX
+  Activity,
+  ChevronDown,
+  ChevronUp,
+  ListMusic,
+  Music,
+  Scissors,
+  Stethoscope,
+  Upload,
+  Volume2,
+  VolumeX
 } from 'lucide-react'
 import React, { useCallback, useEffect, useState } from 'react'
 import { useThemeStore } from '../../store/theme-store'
 import { getAudioEngine, type AudioTrack, type Playlist } from '../../utils/audio-engine'
+import { createLogger } from '../../utils/logger'
 import { AudioDiagnostic } from './AudioDiagnostic'
 import { AudioEditor } from './AudioEditor'
 import { AudioPlaylist } from './AudioPlaylist'
 import { AudioUploader } from './AudioUploader'
 import { AudioVisualizer } from './AudioVisualizer'
+
+const logger = createLogger('AudioPanel')
 
 interface AudioPanelProps {
   className?: string
@@ -58,7 +61,7 @@ export function AudioPanel({ className = '' }: AudioPanelProps) {
           setTracks(loadedTracks)
           setLibraryInitialized(true)
         } catch (error) {
-          console.error('[YYC3 Audio] ❌ 音乐库初始化失败:', error)
+          logger.error('[YYC3 Audio] ❌ 音乐库初始化失败:', error)
         } finally {
           setIsLibraryLoading(false)
         }
@@ -155,9 +158,8 @@ export function AudioPanel({ className = '' }: AudioPanelProps) {
 
   return (
     <div
-      className={`audio-panel border rounded-lg overflow-hidden transition-all ${
-        isExpanded ? 'max-h-[800px]' : 'max-h-12'
-      } ${className}`}
+      className={`audio-panel border rounded-lg overflow-hidden transition-all ${isExpanded ? 'max-h-[800px]' : 'max-h-12'
+        } ${className}`}
       style={{
         borderColor: tokens.border,
         backgroundColor: tokens.cardBg + '80',
@@ -258,11 +260,10 @@ export function AudioPanel({ className = '' }: AudioPanelProps) {
                 key={tab.id}
                 onClick={() => setCurrentView(tab.id)}
                 aria-label={tab.label}
-                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs rounded-md transition-all ${
-                  currentView === tab.id
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2 px-3 text-xs rounded-md transition-all ${currentView === tab.id
                     ? 'text-black font-medium shadow-sm'
                     : 'text-gray-400 hover:text-gray-300'
-                }`}
+                  }`}
                 style={
                   currentView === tab.id
                     ? { backgroundColor: tokens.primary }

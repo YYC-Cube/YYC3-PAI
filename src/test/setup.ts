@@ -74,6 +74,14 @@ vi.mock('@tauri-apps/plugin-fs', () => {
   }
 })
 
+// ===== Mock heavy ESM deps used by Chat/AiMessageRender =====
+vi.mock('react-markdown', () => ({
+  default: ({ children }: any) => children || null,
+}))
+vi.mock('remark-gfm', () => ({
+  default: () => { },
+}))
+
 vi.mock('@tauri-apps/plugin-shell', () => {
   const MockCommand = vi.fn().mockImplementation(() => ({
     execute: vi.fn().mockResolvedValue({

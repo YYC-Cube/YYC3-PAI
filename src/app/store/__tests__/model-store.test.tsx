@@ -5,10 +5,13 @@
  * @version v2.1.0
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { render, screen, waitFor, act } from '@testing-library/react'
+import { act, render, screen, waitFor } from '@testing-library/react'
 import { createElement, type ReactNode } from 'react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { createLogger } from '../../utils/logger'
 import { ModelStoreProvider, useModelStore, type AIModel } from '../model-store'
+
+const logger = createLogger('model-store-test')
 
 const mockFetch = vi.fn()
 
@@ -28,14 +31,14 @@ let mockLocalStorage: ReturnType<typeof createMockLocalStorage>
 
 function TestComponent() {
   const store = useModelStore()
-  
-  return createElement('div', { 'data-testid': 'test-component' }, 
+
+  return createElement('div', { 'data-testid': 'test-component' },
     createElement('div', { 'data-testid': 'model-count' }, String(store.aiModels.length)),
     createElement('div', { 'data-testid': 'active-model-id' }, store.activeModelId || 'none'),
     createElement('div', { 'data-testid': 'settings-open' }, String(store.modelSettingsOpen)),
     createElement('div', { 'data-testid': 'connectivity-map' }, JSON.stringify(store.connectivityMap)),
     createElement('div', { 'data-testid': 'active-model-name' }, store.getActiveModel()?.name || 'none'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'add-model-btn',
       onClick: () => store.addAIModel({
         name: 'Test Model',
@@ -45,7 +48,7 @@ function TestComponent() {
         isActive: false
       })
     }, 'Add Model'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'add-ollama-btn',
       onClick: () => store.addAIModel({
         name: 'Ollama Model',
@@ -55,19 +58,19 @@ function TestComponent() {
         isActive: false
       })
     }, 'Add Ollama Model'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'open-settings-btn',
       onClick: () => store.openModelSettings()
     }, 'Open Settings'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'open-settings-tab-btn',
       onClick: () => store.openModelSettings('advanced')
     }, 'Open Settings with Tab'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'close-settings-btn',
       onClick: () => store.closeModelSettings()
     }, 'Close Settings'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'activate-btn',
       onClick: () => {
         if (store.aiModels.length > 0) {
@@ -75,11 +78,11 @@ function TestComponent() {
         }
       }
     }, 'Activate'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'deactivate-btn',
       onClick: () => store.deactivateAIModel()
     }, 'Deactivate'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'remove-btn',
       onClick: () => {
         if (store.aiModels.length > 0) {
@@ -87,7 +90,7 @@ function TestComponent() {
         }
       }
     }, 'Remove'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'update-btn',
       onClick: () => {
         if (store.aiModels.length > 0) {
@@ -95,7 +98,7 @@ function TestComponent() {
         }
       }
     }, 'Update'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'check-connectivity-btn',
       onClick: async () => {
         if (store.aiModels.length > 0) {
@@ -103,7 +106,7 @@ function TestComponent() {
         }
       }
     }, 'Check Connectivity'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'test-model-btn',
       onClick: async () => {
         if (store.aiModels.length > 0) {
@@ -111,7 +114,7 @@ function TestComponent() {
         }
       }
     }, 'Test Model'),
-    createElement('button', { 
+    createElement('button', {
       'data-testid': 'send-message-btn',
       onClick: async () => {
         try {
@@ -119,9 +122,9 @@ function TestComponent() {
             systemPrompt: 'You are a helpful assistant.',
             history: [{ role: 'user', content: 'Previous message' }]
           })
-          console.log('Response:', response)
+          logger.info('Response:', response)
         } catch (error) {
-          console.error('Error:', error)
+          logger.error('Error:', error)
         }
       }
     }, 'Send Message')
@@ -137,10 +140,10 @@ function renderWithProvider(ui: ReactNode) {
 describe('ModelStore', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockLocalStorage = createMockLocalStorage()
     vi.stubGlobal('localStorage', mockLocalStorage)
-    
+
     mockFetch.mockImplementation(() => Promise.resolve({
       ok: true,
       status: 200,
@@ -158,7 +161,7 @@ describe('ModelStore', () => {
   describe('初始状态', () => {
     it('应该初始化为空模型列表', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('0')
       }, { timeout: 3000 })
@@ -176,9 +179,9 @@ describe('ModelStore', () => {
         const store = mockLocalStorage.getStore()
         return store[key] || null
       })
-      
+
       renderWithProvider(createElement(TestComponent))
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
@@ -188,15 +191,15 @@ describe('ModelStore', () => {
   describe('模型管理', () => {
     it('应该能够添加新模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('0')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
@@ -204,11 +207,11 @@ describe('ModelStore', () => {
 
     it('应该能够添加Ollama模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-ollama-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
@@ -216,19 +219,19 @@ describe('ModelStore', () => {
 
     it('应该能够删除模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('remove-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('0')
       }, { timeout: 3000 })
@@ -236,27 +239,27 @@ describe('ModelStore', () => {
 
     it('应该能够更新模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('update-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-name').textContent).toBe('Updated Model')
       }, { timeout: 3000 })
@@ -264,19 +267,19 @@ describe('ModelStore', () => {
 
     it('应该能够激活模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
       }, { timeout: 3000 })
@@ -284,27 +287,27 @@ describe('ModelStore', () => {
 
     it('应该能够停用模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('deactivate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).toBe('none')
       }, { timeout: 3000 })
@@ -312,19 +315,19 @@ describe('ModelStore', () => {
 
     it('应该能够获取活跃模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-name').textContent).toBe('Test Model')
       }, { timeout: 3000 })
@@ -332,27 +335,27 @@ describe('ModelStore', () => {
 
     it('删除活跃模型时应该自动停用', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('remove-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).toBe('none')
       }, { timeout: 3000 })
@@ -362,11 +365,11 @@ describe('ModelStore', () => {
   describe('设置管理', () => {
     it('应该能够打开模型设置', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('open-settings-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('settings-open').textContent).toBe('true')
       }, { timeout: 3000 })
@@ -374,11 +377,11 @@ describe('ModelStore', () => {
 
     it('应该能够打开模型设置并指定初始标签页', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('open-settings-tab-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('settings-open').textContent).toBe('true')
       }, { timeout: 3000 })
@@ -386,19 +389,19 @@ describe('ModelStore', () => {
 
     it('应该能够关闭模型设置', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('open-settings-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('settings-open').textContent).toBe('true')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('close-settings-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('settings-open').textContent).toBe('false')
       }, { timeout: 3000 })
@@ -408,19 +411,19 @@ describe('ModelStore', () => {
   describe('连接性检查', () => {
     it('应该能够检查模型连接性', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('check-connectivity-btn').click()
       })
-      
+
       await waitFor(() => {
         const connectivityMap = JSON.parse(screen.getByTestId('connectivity-map').textContent || '{}')
         const keys = Object.keys(connectivityMap)
@@ -435,21 +438,21 @@ describe('ModelStore', () => {
         json: () => Promise.resolve({ models: [] }),
         text: () => Promise.resolve(''),
       }))
-      
+
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-ollama-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('check-connectivity-btn').click()
       })
-      
+
       await waitFor(() => {
         const connectivityMap = JSON.parse(screen.getByTestId('connectivity-map').textContent || '{}')
         const keys = Object.keys(connectivityMap)
@@ -459,21 +462,21 @@ describe('ModelStore', () => {
 
     it('应该处理连接性检查失败', async () => {
       mockFetch.mockImplementation(() => Promise.reject(new Error('Network error')))
-      
+
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('check-connectivity-btn').click()
       })
-      
+
       await waitFor(() => {
         const connectivityMap = JSON.parse(screen.getByTestId('connectivity-map').textContent || '{}')
         const keys = Object.keys(connectivityMap)
@@ -485,19 +488,19 @@ describe('ModelStore', () => {
   describe('模型测试', () => {
     it('应该能够测试模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('test-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalled()
       }, { timeout: 8000 })
@@ -505,21 +508,21 @@ describe('ModelStore', () => {
 
     it('应该处理模型测试失败', async () => {
       mockFetch.mockImplementation(() => Promise.reject(new Error('Test failed')))
-      
+
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('test-model-btn').click()
       })
-      
+
       await waitFor(() => {
         const connectivityMap = JSON.parse(screen.getByTestId('connectivity-map').textContent || '{}')
         const keys = Object.keys(connectivityMap)
@@ -531,67 +534,67 @@ describe('ModelStore', () => {
   describe('发送消息', () => {
     it('应该能够发送消息到活跃模型', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('send-message-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalled()
       }, { timeout: 8000 })
     })
 
     it('应该在没有活跃模型时抛出错误', async () => {
-      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      
+      const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => { })
+
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('send-message-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(consoleSpy).toHaveBeenCalled()
       }, { timeout: 3000 })
-      
+
       consoleSpy.mockRestore()
     })
 
     it('应该处理发送消息失败', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
       }, { timeout: 3000 })
-      
+
       expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
     })
   })
@@ -599,15 +602,15 @@ describe('ModelStore', () => {
   describe('持久化', () => {
     it('应该将模型保存到localStorage', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await waitFor(() => {
         expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
           'yyc3_ai_models',
@@ -618,23 +621,23 @@ describe('ModelStore', () => {
 
     it('应该将活跃模型ID保存到localStorage', async () => {
       renderWithProvider(createElement(TestComponent))
-      
+
       await act(async () => {
         screen.getByTestId('add-model-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('model-count').textContent).toBe('1')
       }, { timeout: 3000 })
-      
+
       await act(async () => {
         screen.getByTestId('activate-btn').click()
       })
-      
+
       await waitFor(() => {
         expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
       }, { timeout: 3000 })
-      
+
       await waitFor(() => {
         expect(mockLocalStorage.setItem).toHaveBeenCalledWith(
           'yyc3_active_model_id',
@@ -649,7 +652,7 @@ describe('ModelStore 辅助函数', () => {
   it('应该正确生成模型ID', () => {
     const id1 = 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8)
     const id2 = 'm_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8)
-    
+
     expect(id1).toMatch(/^m_[a-z0-9]+_[a-z0-9]+$/)
     expect(id1).not.toBe(id2)
   })
@@ -662,9 +665,9 @@ describe('缓存机制', () => {
       { role: 'user', content: 'Hello' },
       { role: 'assistant', content: 'Hi there!' }
     ]
-    
+
     const cacheKey = model + '::' + JSON.stringify(messages)
-    
+
     expect(cacheKey).toContain('gpt-4')
     expect(cacheKey).toContain('Hello')
     expect(cacheKey).toContain('Hi there!')
@@ -676,19 +679,19 @@ describe('速率限制', () => {
     const RATE_LIMIT_WINDOW_MS = 60_000
     const now = Date.now()
     const timestamps = [now - 30000, now - 20000, now - 10000]
-    
+
     const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS)
-    
+
     expect(recent.length).toBe(3)
   })
-  
+
   it('应该过滤过期的请求时间戳', () => {
     const RATE_LIMIT_WINDOW_MS = 60_000
     const now = Date.now()
     const timestamps = [now - 120000, now - 90000, now - 30000]
-    
+
     const recent = timestamps.filter(t => now - t < RATE_LIMIT_WINDOW_MS)
-    
+
     expect(recent.length).toBe(1)
   })
 })
@@ -696,10 +699,10 @@ describe('速率限制', () => {
 describe('Fallback机制', () => {
   beforeEach(() => {
     vi.clearAllMocks()
-    
+
     mockLocalStorage = createMockLocalStorage()
     vi.stubGlobal('localStorage', mockLocalStorage)
-    
+
     let callCount = 0
     mockFetch.mockImplementation(() => {
       callCount++
@@ -723,35 +726,35 @@ describe('Fallback机制', () => {
 
   it('应该在主模型失败时尝试Fallback模型', async () => {
     renderWithProvider(createElement(TestComponent))
-    
+
     await act(async () => {
       screen.getByTestId('add-model-btn').click()
     })
-    
+
     await waitFor(() => {
       expect(screen.getByTestId('model-count').textContent).toBe('1')
     }, { timeout: 3000 })
-    
+
     await act(async () => {
       screen.getByTestId('add-ollama-btn').click()
     })
-    
+
     await waitFor(() => {
       expect(screen.getByTestId('model-count').textContent).toBe('2')
     }, { timeout: 3000 })
-    
+
     await act(async () => {
       screen.getByTestId('activate-btn').click()
     })
-    
+
     await waitFor(() => {
       expect(screen.getByTestId('active-model-id').textContent).not.toBe('none')
     }, { timeout: 3000 })
-    
+
     await act(async () => {
       screen.getByTestId('send-message-btn').click()
     })
-    
+
     await waitFor(() => {
       expect(mockFetch).toHaveBeenCalled()
     }, { timeout: 10000 })

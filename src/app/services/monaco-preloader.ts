@@ -85,7 +85,7 @@ class MonacoPreloader {
       try {
         callback(success)
       } catch (err) {
-        console.warn('[MonacoPreloader] Listener error:', err)
+        logger.warn('[MonacoPreloader] Listener error:', err)
       }
     })
   }
@@ -165,7 +165,7 @@ class MonacoPreloader {
 
       return false
     } catch (error) {
-      console.warn('[MonacoPreloader] Preload failed:', error)
+      logger.warn('[MonacoPreloader] Preload failed:', error)
       return false
     }
   }

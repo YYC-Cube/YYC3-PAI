@@ -26,7 +26,7 @@
  * notes: Hook 会自动从 localStorage 加载配置，并在修改时保存
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { AIConfig, AIMessage, AIStreamCallback } from './ai-types';
 
 /**
@@ -115,7 +115,7 @@ export function useAI(): UseAIReturn {
           setConfig(parsed);
         }
       }
-    } catch (err) {
+    } catch {
       // 加载失败使用默认配置 / Use default config on load failure
     } finally {
       setLoading(false);
@@ -127,7 +127,7 @@ export function useAI(): UseAIReturn {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig));
       setConfig(newConfig);
-    } catch (e) {
+    } catch {
       // 保存失败静默处理 / Silent on save failure
     }
   }, []);
@@ -200,13 +200,13 @@ export function useAI(): UseAIReturn {
                   if (content) {
                     onChunk(content);
                   }
-                } catch (e) {
+                } catch {
                   // 流式块解析异常忽略 / Ignore stream chunk parse error
                 }
               }
             }
           }
-        } catch (networkError: unknown) {
+        } catch {
           // 网络失败时的模拟响应 / Simulated response on network failure
           const fallbackMessage =
             'Local inference node unreachable. Using simulated response.\n\n' +

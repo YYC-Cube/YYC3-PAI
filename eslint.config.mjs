@@ -89,6 +89,14 @@ export default tseslint.config(
     },
   },
 
+  // Version examples - contains reference console output patterns
+  {
+    files: ["src/utils/version-examples.ts"],
+    rules: {
+      "no-console": "off",
+    },
+  },
+
   // Test file overrides
   {
     files: ["src/**/*.test.{ts,tsx}", "src/**/__tests__/**"],

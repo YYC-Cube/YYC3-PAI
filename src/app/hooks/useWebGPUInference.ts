@@ -11,14 +11,17 @@
  * @tags hook,webgpu,ai,inference
  */
 
-import { useEffect, useMemo, useCallback } from 'react'
+import { useCallback, useEffect, useMemo } from 'react'
 import { useShallow } from 'zustand/react/shallow'
 import {
   useWebGPUInferenceStore,
   type AIModel,
-  type InferenceTask,
   type AIModelType,
+  type InferenceTask,
 } from '../store/webgpu-inference-store'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('useWebGPUInference')
 
 /**
  * WebGPU推理Hook配置
@@ -199,7 +202,7 @@ export function useWebGPUInference(
   // 自动初始化
   useEffect(() => {
     if (autoInitialize) {
-      initializeWebGPU().catch(console.error)
+      initializeWebGPU().catch((err: Error) => logger.error('[WebGPU] Auto init failed:', err))
     }
   }, [autoInitialize, initializeWebGPU])
 
@@ -209,7 +212,7 @@ export function useWebGPUInference(
       const store = useWebGPUInferenceStore.getState()
       store.loadModel(defaultModelId)
         .then(() => store.setActiveModel(defaultModelId))
-        .catch(console.error)
+        .catch((err: Error) => logger.error('[WebGPU] Auto load model failed:', err))
     }
   }, [autoLoadDefaultModel, defaultModelId, webGPUSupported])
 

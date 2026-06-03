@@ -13,8 +13,11 @@
  */
 
 import { useSyncExternalStore } from 'react'
+import { createLogger } from '../utils/logger'
 import { activityBus } from './activity-store'
 import { settingsActions } from './settings-store'
+
+const logger = createLogger('task-store')
 
 // ===== Type Definitions =====
 
@@ -256,7 +259,7 @@ function parseInferenceResponse(content: string): TaskInference[] {
       context: (item.context as string) || '',
     }))
   } catch (err) {
-    console.error('Failed to parse inference response:', err)
+    logger.error('Failed to parse inference response:', err)
     return []
   }
 }

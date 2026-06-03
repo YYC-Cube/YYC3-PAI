@@ -10,16 +10,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="YYC³ AI - 智能代码编辑器与开发环境" />
 
-    <!-- Content Security Policy -->
+    <!-- Content Security Policy
+         script-src 'unsafe-eval':  WebAssembly (transformers.js) 需要
+         style-src 'unsafe-inline': @emotion/react CSS-in-JS 运行时注入需要
+         worker-src blob:          Web Worker (transformers.js) 需要
+         connect-src:              仅允许已知 AI API 端点，Yjs 协作 WebSocket 使用 wss:
+    -->
     <meta
       http-equiv="Content-Security-Policy"
       content="
       default-src 'self';
-      script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: data:;
+      script-src 'self' 'unsafe-eval';
       style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
       font-src 'self' https://fonts.gstatic.com data:;
       img-src 'self' data: blob: https:;
-      connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com wss: ws:;
+      connect-src 'self' https://api.openai.com https://api.anthropic.com https://generativelanguage.googleapis.com https://open.bigmodel.cn http://localhost:11434 wss:;
       worker-src 'self' blob:;
       child-src 'self' blob:;
       frame-src 'self';

@@ -1,7 +1,10 @@
-import { defineConfig } from 'vite'
-import path from 'path'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+import path from 'path'
+import { visualizer } from 'rollup-plugin-visualizer'
+import { defineConfig } from 'vite'
+
+const isAnalyze = process.env.ANALYZE === 'true'
 
 export default defineConfig({
   plugins: [
@@ -9,7 +12,14 @@ export default defineConfig({
     // Tailwind is not being actively used – do not remove them
     react(),
     tailwindcss(),
-  ],
+    // Bundle analysis (enable via ANALYZE=true pnpm run build)
+    isAnalyze && visualizer({
+      filename: 'dist/stats.html',
+      open: true,
+      gzipSize: true,
+      brotliSize: true,
+    }),
+  ].filter(Boolean),
   resolve: {
     alias: {
       // Alias @ to the src directory
@@ -19,6 +29,8 @@ export default defineConfig({
 
   // 开发服务器配置
   server: {
+    port: 3200,
+    host: true,
     // 配置代理解决CORS问题
     proxy: {
       // Ollama API代理

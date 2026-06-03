@@ -11,8 +11,8 @@
  * @tags component,monaco,ai,completion,webgpu
  */
 
-import { useEffect, useRef, useCallback, useMemo, useState } from 'react'
 import * as Monaco from 'monaco-editor'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useWebGPUInference } from '../hooks/useWebGPUInference'
 import { createLogger } from '../utils/logger'
 
@@ -240,7 +240,7 @@ export function useAICompletionProvider(
 
         return aiSuggestions
       } catch (error) {
-        console.error('[AI Completion] Inference failed:', error)
+        logger.error('[AI Completion] Inference failed:', error)
         return []
       }
     },
@@ -256,7 +256,7 @@ export function useAICompletionProvider(
 
     // 如果WebGPU不支持，不设置Provider
     if (!webGPUSupported) {
-      console.warn('[AI Completion] WebGPU not supported, AI completion disabled')
+      logger.warn('[AI Completion] WebGPU not supported, AI completion disabled')
       return
     }
 

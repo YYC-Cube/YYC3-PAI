@@ -289,8 +289,8 @@ const BUILTIN_PLUGINS: RegisteredPlugin[] = [
     api: {
       type: 's3',
       read: async () => null,
-      write: async () => {},
-      remove: async () => {},
+      write: async () => { },
+      remove: async () => { },
       list: async () => [],
       isConnected: async () => false,
     } as StoragePluginAPI,
@@ -317,8 +317,8 @@ const BUILTIN_PLUGINS: RegisteredPlugin[] = [
     api: {
       type: 'sqlite',
       read: async () => null,
-      write: async () => {},
-      remove: async () => {},
+      write: async () => { },
+      remove: async () => { },
       list: async () => [],
       isConnected: async () => false,
     } as StoragePluginAPI,
@@ -382,7 +382,7 @@ export const pluginStoreActions = {
   registerPlugin(name: string, api: PluginAPI, meta?: Partial<PluginMeta>, lifecycle?: PluginLifecycle): boolean {
     const existing = state.plugins.find(p => p.meta.name === name)
     if (existing) {
-      console.warn(`[PluginAPI] Plugin "${name}" already registered`)
+      logger.warn(`[PluginAPI] Plugin "${name}" already registered`)
       return false
     }
 
@@ -415,7 +415,7 @@ export const pluginStoreActions = {
     // 触发生命周期
     if (pluginMeta.enabled && lifecycle?.onActivate) {
       try { lifecycle.onActivate() } catch (err) {
-        console.error(`[PluginAPI] Failed to activate "${name}"`, err)
+        logger.error(`[PluginAPI] Failed to activate "${name}"`, err)
         state = {
           ...state,
           plugins: state.plugins.map(p => p.meta.id === pluginMeta.id ? { ...p, status: 'error', error: String(err) } : p),
@@ -432,7 +432,7 @@ export const pluginStoreActions = {
   async unregisterPlugin(pluginId: string): Promise<boolean> {
     const plugin = state.plugins.find(p => p.meta.id === pluginId)
     if (!plugin) return false
-    if (plugin.meta.builtin) { console.warn('[PluginAPI] Cannot unregister built-in plugin'); return false }
+    if (plugin.meta.builtin) { logger.warn('[PluginAPI] Cannot unregister built-in plugin'); return false }
 
     if (plugin.lifecycle.onUninstall) {
       try { await plugin.lifecycle.onUninstall() } catch { /* ignore */ }

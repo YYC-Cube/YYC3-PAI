@@ -237,7 +237,7 @@ export class AudioEngine {
           this.tracks.set(track.id, track)
           loadedTracks.push(track)
         } catch (err) {
-          console.warn(`[YYC3 Audio] ⚠️ 跳过 ${entry.fileName}:`, err)
+          audioLogger.warn(`[YYC3 Audio] ⚠️ 跳过 ${entry.fileName}:`, err)
         }
       }
       audioLogger.info(`[YYC3 Audio] ✅ manifest 加载: ${loadedTracks.length}/${manifest.tracks.length} 首`)
@@ -247,7 +247,7 @@ export class AudioEngine {
         localStorage.setItem(this.TRACKS_VERSION_KEY, manifestVersion)
       }
     } catch (error) {
-      console.warn('[YYC3 Audio] ⚠️ 无法加载 music-manifest.json，使用空列表:', error)
+      audioLogger.warn('[YYC3 Audio] ⚠️ 无法加载 music-manifest.json，使用空列表:', error)
     }
 
     if (loadedTracks.length > 0) {
@@ -318,7 +318,7 @@ export class AudioEngine {
       audio.preload = 'metadata'
 
       const timeout = setTimeout(() => {
-        console.warn(`[YYC3 Audio] ⏱️ 获取时长超时: ${url.split('/').pop()}`)
+        audioLogger.warn(`[YYC3 Audio] ⏱️ 获取时长超时: ${url.split('/').pop()}`)
         audio.src = ''
         resolve(180)
       }, 3000)
@@ -337,7 +337,7 @@ export class AudioEngine {
 
       const onError = (e: Event) => {
         cleanup()
-        console.warn(`[YYC3 Audio] ❌ 加载失败: ${url.split('/').pop()}`, e)
+        audioLogger.warn(`[YYC3 Audio] ❌ 加载失败: ${url.split('/').pop()}`, e)
         resolve(180)
       }
 
@@ -370,8 +370,8 @@ export class AudioEngine {
       this.analyserNode.connect(this.audioContext.destination)
 
       this.gainNode.gain.value = this.config.masterVolume / 100
-    } catch (_error) {
-      console.warn('[YYC3 Audio] Web Audio API not available')
+    } catch {
+      audioLogger.warn('[YYC3 Audio] Web Audio API not available')
     }
   }
 
@@ -526,14 +526,14 @@ export class AudioEngine {
       },
 
       onloaderror: (_id: number, error: unknown) => {
-        console.error(`[YYC3 Audio] ❌ Howl加载失败，尝试备用方案...`)
-        console.error(`[YYC3 Audio] 错误码:`, error)
+        audioLogger.error(`[YYC3 Audio] ❌ Howl加载失败，尝试备用方案...`)
+        audioLogger.error(`[YYC3 Audio] 错误码:`, error)
         this.fallbackPlay(track.url, track.name)
       },
 
       onplayerror: (_id: number, error: unknown) => {
-        console.error(`[YYC3 Audio] ❌ Howl播放错误，尝试备用方案...`)
-        console.error(`[YYC3 Audio] 错误码:`, error)
+        audioLogger.error(`[YYC3 Audio] ❌ Howl播放错误，尝试备用方案...`)
+        audioLogger.error(`[YYC3 Audio] 错误码:`, error)
         this.fallbackPlay(track.url, track.name)
       },
     })
@@ -560,8 +560,8 @@ export class AudioEngine {
     try {
       // 停止Howl实例
       if (this.howlInstance) {
-        try { this.howlInstance.stop() } catch (_e) { /* ignore */ }
-        try { this.howlInstance.unload() } catch (_e) { /* ignore */ }
+        try { this.howlInstance.stop() } catch { /* ignore */ }
+        try { this.howlInstance.unload() } catch { /* ignore */ }
         this.howlInstance = null
       }
 
@@ -587,7 +587,7 @@ export class AudioEngine {
       })
 
       this.fallbackAudio.addEventListener('error', (e) => {
-        console.error(`[YYC3 Audio] ❌❌❌ 备用方案也失败: ${name}`, e)
+        audioLogger.error(`[YYC3 Audio] ❌❌❌ 备用方案也失败: ${name}`, e)
         this.state.isPlaying = false
         this.emitStateChange()
       })
@@ -597,7 +597,7 @@ export class AudioEngine {
 
       if (playPromise && playPromise.catch) {
         playPromise.catch((err) => {
-          console.error(`[YYC3 Audio] ❌ 备用方案play()被拒绝:`, err.message)
+          audioLogger.error(`[YYC3 Audio] ❌ 备用方案play()被拒绝:`, err.message)
           this.state.isPlaying = false
           this.emitStateChange()
         })
@@ -606,7 +606,7 @@ export class AudioEngine {
       audioLogger.info(`[YYC3 Audio] ✅ 备用方案已启动: ${url}`)
 
     } catch (error) {
-      console.error(`[YYC3 Audio] ❌ 备用方案创建失败:`, error)
+      audioLogger.error(`[YYC3 Audio] ❌ 备用方案创建失败:`, error)
       this.state.isPlaying = false
       this.emitStateChange()
     }
@@ -627,7 +627,7 @@ export class AudioEngine {
             this.state.currentTime = seek
             this.state.duration = this.howlInstance.duration() || 0
           }
-        } catch (_e) { /* ignore */ }
+        } catch { /* ignore */ }
       } else if (this.fallbackAudio && this.state.isPlaying) {
         // fallbackAudio自带timeupdate事件处理，无需额外操作
       }
@@ -669,11 +669,11 @@ export class AudioEngine {
     }
 
     if (!actualPlaying && this.state.isPlaying) {
-      console.warn(`[YYC3 Audio] ⚠️ 检测到未实际播放，currentTime=${this.state.currentTime}`)
+      audioLogger.warn(`[YYC3 Audio] ⚠️ 检测到未实际播放，currentTime=${this.state.currentTime}`)
 
       // 如果时间仍然是0，可能真的没有在播放
       if (this.state.currentTime === 0) {
-        console.warn(`[YYC3 Audio] ❌ 确认：音频未播放，时间停留在0:00`)
+        audioLogger.warn(`[YYC3 Audio] ❌ 确认：音频未播放，时间停留在0:00`)
 
         // 尝试重新播放一次
         if (this.howlInstance) {
@@ -1101,8 +1101,8 @@ export class AudioEngine {
         }
         return value
       }))
-    } catch (_error) {
-      console.warn('[YYC3 Audio] Failed to save to storage')
+    } catch {
+      audioLogger.warn('[YYC3 Audio] Failed to save to storage')
     }
   }
 
@@ -1136,8 +1136,8 @@ export class AudioEngine {
           this.editedTracks.set(id, edited)
         }
       }
-    } catch (_error) {
-      console.warn('[YYC3 Audio] Failed to load from storage')
+    } catch {
+      audioLogger.warn('[YYC3 Audio] Failed to load from storage')
     }
   }
 
@@ -1174,7 +1174,7 @@ export class AudioEngine {
 
       this.saveToStorage()
       return true
-    } catch (_error) {
+    } catch {
       return false
     }
   }

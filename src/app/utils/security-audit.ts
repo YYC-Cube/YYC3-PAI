@@ -194,7 +194,7 @@ export class SecurityAuditLogger {
         logger.error(prefix, message, event)
         break
       case 'high':
-        console.error(prefix, message, event)
+        logger.error(prefix, message, event)
         break
       case 'medium':
         logger.warn(prefix, message, event)

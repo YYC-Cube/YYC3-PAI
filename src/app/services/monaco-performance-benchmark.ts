@@ -8,10 +8,13 @@
  * @status stable
  * @license MIT
  * @copyright Copyright (c) 2026 YanYuCloudCube Team
- * @tags performance,benchmark,monaco,editor
+ * @tags performance,benchmark,monaco,monitoring
  */
 
 import type * as monaco from 'monaco-editor'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('monaco-benchmark')
 
 // ===== 性能指标类型 =====
 export interface PerformanceMetrics {
@@ -177,7 +180,7 @@ export class MonacoPerformanceBenchmark {
    */
   async testFileOpen(content: string, iterations = 10): Promise<number[]> {
     if (!this.editor || !this.monaco) {
-      console.warn('[MonacoPerformanceBenchmark] Editor not initialized')
+      logger.warn('[MonacoPerformanceBenchmark] Editor not initialized')
       return []
     }
 
@@ -207,7 +210,7 @@ export class MonacoPerformanceBenchmark {
    */
   async testCursorMovement(iterations = 100): Promise<number[]> {
     if (!this.editor || !this.monaco) {
-      console.warn('[MonacoPerformanceBenchmark] Editor not initialized')
+      logger.warn('[MonacoPerformanceBenchmark] Editor not initialized')
       return []
     }
 
@@ -237,7 +240,7 @@ export class MonacoPerformanceBenchmark {
    */
   async testSyntaxHighlighting(content: string, iterations = 10): Promise<number[]> {
     if (!this.editor || !this.monaco) {
-      console.warn('[MonacoPerformanceBenchmark] Editor not initialized')
+      logger.warn('[MonacoPerformanceBenchmark] Editor not initialized')
       return []
     }
 
@@ -266,7 +269,7 @@ export class MonacoPerformanceBenchmark {
    */
   async testCollaboratorCursors(userCount = 10, iterations = 10): Promise<number[]> {
     if (!this.editor || !this.monaco) {
-      console.warn('[MonacoPerformanceBenchmark] Editor not initialized')
+      logger.warn('[MonacoPerformanceBenchmark] Editor not initialized')
       return []
     }
 
@@ -307,7 +310,7 @@ export class MonacoPerformanceBenchmark {
    */
   async testScrolling(scrollLines = 100, iterations = 10): Promise<number[]> {
     if (!this.editor || !this.monaco) {
-      console.warn('[MonacoPerformanceBenchmark] Editor not initialized')
+      logger.warn('[MonacoPerformanceBenchmark] Editor not initialized')
       return []
     }
 
@@ -390,43 +393,43 @@ export class MonacoPerformanceBenchmark {
    */
   printReport() {
     const report = this.generateReport()
-    console.log('=== Monaco Editor 性能基准测试报告 ===\n')
+    logger.log('=== Monaco Editor 性能基准测试报告 ===\n')
 
-    console.log('📊 文件打开性能:')
-    console.log(`  平均时间: ${report.fileOpenTime.toFixed(2)}ms`)
-    console.log(`  P50: ${report.fileOpenP50.toFixed(2)}ms`)
-    console.log(`  P95: ${report.fileOpenP95.toFixed(2)}ms`)
-    console.log(`  P99: ${report.fileOpenP99.toFixed(2)}ms`)
-    console.log(`  目标: ${PERFORMANCE_TARGETS.fileOpenTime}ms (VS Code)`)
-    console.log(`  达成率: ${(PERFORMANCE_TARGETS.fileOpenTime / report.fileOpenTime * 100).toFixed(1)}%\n`)
+    logger.log('📊 文件打开性能:')
+    logger.log(`  平均时间: ${report.fileOpenTime.toFixed(2)}ms`)
+    logger.log(`  P50: ${report.fileOpenP50.toFixed(2)}ms`)
+    logger.log(`  P95: ${report.fileOpenP95.toFixed(2)}ms`)
+    logger.log(`  P99: ${report.fileOpenP99.toFixed(2)}ms`)
+    logger.log(`  目标: ${PERFORMANCE_TARGETS.fileOpenTime}ms (VS Code)`)
+    logger.log(`  达成率: ${(PERFORMANCE_TARGETS.fileOpenTime / report.fileOpenTime * 100).toFixed(1)}%\n`)
 
-    console.log('⚡ 光标移动性能:')
-    console.log(`  平均时间: ${report.cursorMoveTime.toFixed(2)}ms`)
-    console.log(`  P50: ${report.cursorMoveP50.toFixed(2)}ms`)
-    console.log(`  P95: ${report.cursorMoveP95.toFixed(2)}ms`)
-    console.log(`  P99: ${report.cursorMoveP99.toFixed(2)}ms`)
-    console.log(`  目标: ${PERFORMANCE_TARGETS.cursorMoveTime}ms (VS Code)`)
-    console.log(`  达成率: ${(PERFORMANCE_TARGETS.cursorMoveTime / report.cursorMoveTime * 100).toFixed(1)}%\n`)
+    logger.log('⚡ 光标移动性能:')
+    logger.log(`  平均时间: ${report.cursorMoveTime.toFixed(2)}ms`)
+    logger.log(`  P50: ${report.cursorMoveP50.toFixed(2)}ms`)
+    logger.log(`  P95: ${report.cursorMoveP95.toFixed(2)}ms`)
+    logger.log(`  P99: ${report.cursorMoveP99.toFixed(2)}ms`)
+    logger.log(`  目标: ${PERFORMANCE_TARGETS.cursorMoveTime}ms (VS Code)`)
+    logger.log(`  达成率: ${(PERFORMANCE_TARGETS.cursorMoveTime / report.cursorMoveTime * 100).toFixed(1)}%\n`)
 
-    console.log('🎨 语法高亮性能:')
-    console.log(`  平均时间: ${report.syntaxHighlightTime.toFixed(2)}ms`)
-    console.log(`  P50: ${report.syntaxHighlightP50.toFixed(2)}ms`)
-    console.log(`  P95: ${report.syntaxHighlightP95.toFixed(2)}ms`)
-    console.log(`  P99: ${report.syntaxHighlightP99.toFixed(2)}ms`)
-    console.log(`  目标: ${PERFORMANCE_TARGETS.syntaxHighlightTime}ms (VS Code)`)
-    console.log(`  达成率: ${(PERFORMANCE_TARGETS.syntaxHighlightTime / report.syntaxHighlightTime * 100).toFixed(1)}%\n`)
+    logger.log('🎨 语法高亮性能:')
+    logger.log(`  平均时间: ${report.syntaxHighlightTime.toFixed(2)}ms`)
+    logger.log(`  P50: ${report.syntaxHighlightP50.toFixed(2)}ms`)
+    logger.log(`  P95: ${report.syntaxHighlightP95.toFixed(2)}ms`)
+    logger.log(`  P99: ${report.syntaxHighlightP99.toFixed(2)}ms`)
+    logger.log(`  目标: ${PERFORMANCE_TARGETS.syntaxHighlightTime}ms (VS Code)`)
+    logger.log(`  达成率: ${(PERFORMANCE_TARGETS.syntaxHighlightTime / report.syntaxHighlightTime * 100).toFixed(1)}%\n`)
 
-    console.log('💾 内存使用:')
-    console.log(`  当前占用: ${report.memoryUsage.toFixed(2)}MB`)
-    console.log(`  目标: ${PERFORMANCE_TARGETS.memoryUsage}MB (VS Code)`)
-    console.log(`  达成率: ${(PERFORMANCE_TARGETS.memoryUsage / report.memoryUsage * 100).toFixed(1)}%`)
-    console.log(`  泄漏率: ${report.memoryLeakRate.toFixed(2)}MB/min\n`)
+    logger.log('💾 内存使用:')
+    logger.log(`  当前占用: ${report.memoryUsage.toFixed(2)}MB`)
+    logger.log(`  目标: ${PERFORMANCE_TARGETS.memoryUsage}MB (VS Code)`)
+    logger.log(`  达成率: ${(PERFORMANCE_TARGETS.memoryUsage / report.memoryUsage * 100).toFixed(1)}%`)
+    logger.log(`  泄漏率: ${report.memoryLeakRate.toFixed(2)}MB/min\n`)
 
-    console.log('🎯 总体评分:')
-    console.log(`  综合得分: ${report.overallScore.toFixed(1)}/100`)
-    console.log(`  VS Code对标: ${report.vsCodeScore.toFixed(1)}%\n`)
+    logger.log('🎯 总体评分:')
+    logger.log(`  综合得分: ${report.overallScore.toFixed(1)}/100`)
+    logger.log(`  VS Code对标: ${report.vsCodeScore.toFixed(1)}%\n`)
 
-    console.log('=== 性能优化建议 ===\n')
+    logger.log('=== 性能优化建议 ===\n')
     this.printOptimizationSuggestions(report)
   }
 
@@ -479,8 +482,8 @@ export class MonacoPerformanceBenchmark {
       suggestions.push('✅ 当前性能表现良好，符合VS Code基准!')
     }
 
-    suggestions.forEach(s => console.log(s))
-    console.log('')
+    suggestions.forEach(s => logger.log(s))
+    logger.log('')
   }
 
   /**
@@ -497,34 +500,34 @@ export class MonacoPerformanceBenchmark {
       iterations = 10,
     } = options
 
-    console.log('🚀 开始Monaco Editor性能基准测试...\n')
+    logger.log('🚀 开始Monaco Editor性能基准测试...\n')
 
     this.start()
 
     // 1. 文件打开性能测试
-    console.log('📝 测试1: 文件打开性能...')
+    logger.log('📝 测试1: 文件打开性能...')
     await this.testFileOpen(fileContent, iterations)
-    console.log('   ✓ 完成\n')
+    logger.log('   ✓ 完成\n')
 
     // 2. 光标移动性能测试
-    console.log('⚡ 测试2: 光标移动性能...')
+    logger.log('⚡ 测试2: 光标移动性能...')
     await this.testCursorMovement(100)
-    console.log('   ✓ 完成\n')
+    logger.log('   ✓ 完成\n')
 
     // 3. 语法高亮性能测试
-    console.log('🎨 测试3: 语法高亮性能...')
+    logger.log('🎨 测试3: 语法高亮性能...')
     await this.testSyntaxHighlighting(largeFileContent, Math.floor(iterations / 2))
-    console.log('   ✓ 完成\n')
+    logger.log('   ✓ 完成\n')
 
     // 4. 协作光标性能测试
-    console.log('👥 测试4: 协作光标性能...')
+    logger.log('👥 测试4: 协作光标性能...')
     await this.testCollaboratorCursors(10, iterations)
-    console.log('   ✓ 完成\n')
+    logger.log('   ✓ 完成\n')
 
     // 5. 滚动性能测试
-    console.log('📜 测试5: 滚动性能...')
+    logger.log('📜 测试5: 滚动性能...')
     await this.testScrolling(100, iterations)
-    console.log('   ✓ 完成\n')
+    logger.log('   ✓ 完成\n')
 
     this.stop()
 
@@ -620,4 +623,4 @@ export function useMonacoBenchmark() {
 }
 
 // 导入React hook需要的useState和useCallback
-import { useState, useCallback } from 'react'
+import { useCallback, useState } from 'react'

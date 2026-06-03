@@ -8,17 +8,19 @@
  * @license MIT
  */
 
-import { useState, useCallback, useMemo } from 'react'
 import {
-  Download, RotateCcw, Trash2, Loader2,
-  CheckCircle, XCircle, AlertTriangle,
-  ChevronRight, Settings,
+  AlertTriangle,
+  CheckCircle,
+  ChevronRight,
+  Download,
+  Loader2,
   Play,
+  RotateCcw,
+  Settings,
+  Trash2,
+  XCircle,
 } from 'lucide-react'
-import { type ThemeTokens } from '../store/theme-store'
-import { CyberTooltip } from './CyberTooltip'
-import { cyberToast } from './CyberToast'
-import { useDBStore, dbStoreActions } from '../store/db-store'
+import { useCallback, useMemo, useState } from 'react'
 import {
   getDatabaseBackupService,
   type BackupOptions,
@@ -26,6 +28,13 @@ import {
   type RestorePreview,
   type RestoreProgress,
 } from '../services/database-backup-service'
+import { dbStoreActions, useDBStore } from '../store/db-store'
+import { type ThemeTokens } from '../store/theme-store'
+import { createLogger } from '../utils/logger'
+import { cyberToast } from './CyberToast'
+import { CyberTooltip } from './CyberTooltip'
+
+const logger = createLogger('EnhancedBackupRestorePanel')
 
 const TYPE_COLORS: Record<string, string> = { postgres: '#336791', mysql: '#00758f', redis: '#dc382d' }
 const TYPE_LABELS: Record<string, string> = { postgres: 'PostgreSQL', mysql: 'MySQL', redis: 'Redis' }
@@ -127,7 +136,7 @@ export function EnhancedBackupRestorePanel({ tk, isZh }: EnhancedBackupRestorePa
             : `✅ Restore completed: ${result.restoredTables.length} tables, ${result.restoredRecords} records`
         )
         if (result.warnings.length > 0) {
-          console.warn('Restore warnings:', result.warnings)
+          logger.warn('Restore warnings:', result.warnings)
         }
       } else {
         cyberToast(isZh ? `❌ 恢复失败: ${result.error}` : `❌ Restore failed: ${result.error}`)

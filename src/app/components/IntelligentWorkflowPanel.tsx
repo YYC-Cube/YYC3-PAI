@@ -11,15 +11,33 @@
  * @tags component,workflow,ai,intelligent,ui
  */
 
-import { useState, useEffect } from 'react'
 import {
-  X, Zap, Play, Pause, Square, RotateCcw, Trash2, Copy, Brain, GitBranch,
-  Activity, CheckCircle2, AlertTriangle, Clock, TrendingUp, Lightbulb, Sparkles,
-  Terminal, MessageSquare, ChevronRight, Layers, Target,
+  Activity,
+  AlertTriangle,
+  Brain,
+  CheckCircle2,
+  ChevronRight,
+  Clock,
+  Copy,
+  GitBranch,
+  Layers,
+  Lightbulb,
+  MessageSquare,
+  Pause,
+  Play,
+  RotateCcw,
+  Sparkles,
+  Square,
+  Target,
+  Terminal,
+  Trash2,
+  TrendingUp,
+  X, Zap,
 } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { useIntelligentWorkflow } from '../hooks/useIntelligentWorkflow'
-import { useThemeStore, Z_INDEX, BLUR } from '../store/theme-store'
-import type { WorkflowNodeType, WorkflowNodeStatus } from '../store/intelligent-workflow-store'
+import type { WorkflowNodeStatus, WorkflowNodeType } from '../store/intelligent-workflow-store'
+import { BLUR, Z_INDEX, useThemeStore } from '../store/theme-store'
 import { createLogger } from '../utils/logger'
 
 const logger = createLogger('workflow-panel')
@@ -248,7 +266,7 @@ export function IntelligentWorkflowPanel({ visible, onClose }: IntelligentWorkfl
                           logger.debug('Workflow created:', result.workflow)
                           setNaturalLanguageInput('')
                         } else {
-                          console.error('Conversion failed:', result.error)
+                          logger.error('Conversion failed:', result.error)
                         }
                       })
                     }

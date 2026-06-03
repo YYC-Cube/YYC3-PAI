@@ -61,8 +61,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useThemeStore } from '../../store/theme-store'
 import { getAudioEngine } from '../../utils/audio-engine'
+import { createLogger } from '../../utils/logger'
 import { cyberToast } from '../CyberToast'
 import { DeleteConfirmDialog, EditTrackDialog } from './TrackDialogs'
+
+const logger = createLogger('EnhancedAudioPlayerV3')
 
 // 🎯 新增：导入音乐功能模块和UI面板
 import {
@@ -488,7 +491,7 @@ class ShareManager {
       ])
       return true
     } catch (error) {
-      console.error('[ShareManager] 分享失败:', error)
+      logger.error('[ShareManager] 分享失败:', error)
       return false
     }
   }
@@ -818,7 +821,7 @@ export function EnhancedAudioPlayerV3({ isOpen, onClose }: { isOpen: boolean; on
       setFilteredTracks(updatedTracks)
       cyberToast(`成功上传 ${files.length} 首歌曲`)
     } catch (error) {
-      console.error('[YYC3 Audio V3] ❌ 上传失败:', error)
+      logger.error('[YYC3 Audio V3] ❌ 上传失败:', error)
       cyberToast('上传失败，请重试')
     } finally {
       setIsUploading(false)

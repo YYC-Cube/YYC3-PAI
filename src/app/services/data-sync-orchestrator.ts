@@ -13,6 +13,9 @@
 
 const uuidv4 = () => crypto.randomUUID()
 import type { DataEntry, DataLocation, DataType } from '../store/unified-data-store'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('data-sync-orchestrator')
 
 // ============================================================================
 // 类型定义
@@ -130,7 +133,7 @@ export class DataSyncOrchestrator {
 
     this.config.autoSync = true
     this.syncTimer = setInterval(() => {
-      this.syncAll().catch(console.error)
+      this.syncAll().catch((err: Error) => logger.error('Auto sync failed:', err))
     }, this.config.syncInterval)
   }
 
@@ -504,7 +507,7 @@ export class DataSyncOrchestrator {
       try {
         listener(event)
       } catch (error) {
-        console.error('Sync event listener error:', error)
+        logger.error('Sync event listener error:', error)
       }
     }
   }

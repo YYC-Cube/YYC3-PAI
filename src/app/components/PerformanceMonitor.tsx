@@ -91,7 +91,7 @@ export function PerformanceMonitor({
       const isSlow = actualDuration > slowComponentThreshold
 
       if (isSlow) {
-        console.warn(
+        logger.warn(
           `[Performance Monitor] Slow component detected: ${name}`,
           {
             phase,

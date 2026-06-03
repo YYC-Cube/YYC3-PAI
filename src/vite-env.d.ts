@@ -1,5 +1,45 @@
 /// <reference types="vite/client" />
 
+// =============================================================================
+// WebGPU Type Declarations (navigator.gpu is not in standard TS lib)
+// =============================================================================
+interface GPUAdapter {
+  requestDevice(descriptor?: GPUDeviceDescriptor): Promise<GPUDevice>
+  readonly features: GPUSupportedFeatures
+  readonly limits: GPUSupportedLimits
+}
+
+interface GPUAdapterInfo {
+  readonly vendor: string
+  readonly architecture: string
+  readonly device: string
+  readonly description: string
+}
+
+interface GPUDevice {
+  readonly adapterInfo: GPUAdapterInfo
+  destroy(): void
+}
+
+interface GPUSupportedFeatures {
+  has(feature: string): boolean
+}
+
+interface GPUSupportedLimits {
+  readonly maxBufferSize: number
+}
+
+interface GPU {
+  requestAdapter(): Promise<GPUAdapter | null>
+}
+
+interface Navigator {
+  readonly gpu?: GPU
+}
+
+// =============================================================================
+// Environment Variables
+// =============================================================================
 interface ImportMetaEnv {
   readonly MODE: string
   readonly BASE_URL: string

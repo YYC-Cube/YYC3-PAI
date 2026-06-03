@@ -10,7 +10,7 @@
  * @tags hook,performance,monitor,monaco
  */
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import type { MonacoEditorInstance } from '../types/monaco'
 import { createLogger } from '../utils/logger'
 
@@ -98,7 +98,7 @@ export function useMonacoPerformanceMonitor(
   // 运行基准测试
   const runBenchmark = useCallback(async () => {
     if (!editorRef.current) {
-      console.warn('[Monitor] No editor instance available')
+      logger.warn('[Monitor] No editor instance available')
       return
     }
 
@@ -119,7 +119,7 @@ export function useMonacoPerformanceMonitor(
 
       logger.info('Benchmark completed')
     } catch (error) {
-      console.error('[Monitor] Benchmark failed:', error)
+      logger.error('[Monitor] Benchmark failed:', error)
       setState((prev) => ({ ...prev, running: false }))
     }
   }, [])

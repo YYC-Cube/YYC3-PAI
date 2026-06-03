@@ -7,6 +7,9 @@ import { ListMusic, Music, Pause, Play, SkipBack, SkipForward, Volume2, VolumeX,
 import { useCallback, useEffect, useState } from 'react'
 import { useThemeStore } from '../../store/theme-store'
 import { getAudioEngine } from '../../utils/audio-engine'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('AudioPlayerPopup')
 
 interface AudioPlayerPopupProps {
   isOpen: boolean
@@ -87,7 +90,7 @@ export function AudioPlayerPopup({ isOpen, onClose }: AudioPlayerPopupProps) {
         }
       }
     } catch (error) {
-      console.error('[YYC3 PlayerPopup] ❌ 播放失败:', error)
+      logger.error('[YYC3 PlayerPopup] ❌ 播放失败:', error)
     }
   }, [isPlaying, tracks])
 
@@ -120,7 +123,7 @@ export function AudioPlayerPopup({ isOpen, onClose }: AudioPlayerPopupProps) {
       await audioEngine.play(trackId)
       setIsPlaying(true)
     } catch (error) {
-      console.error('[YYC3 PlayerPopup] ❌ 切换歌曲失败:', error)
+      logger.error('[YYC3 PlayerPopup] ❌ 切换歌曲失败:', error)
     }
   }
 

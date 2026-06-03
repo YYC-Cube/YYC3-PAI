@@ -11,14 +11,17 @@
  * @tags monaco,performance,monitor,ui,component
  */
 
-import { useState, useCallback } from 'react'
-import { Monitor, RefreshCw, X, Clock } from 'lucide-react'
+import { Clock, Monitor, RefreshCw, X } from 'lucide-react'
 import type * as monaco from 'monaco-editor'
+import { useCallback, useState } from 'react'
 import {
   getMonacoBenchmark,
   type PerformanceMetrics,
 } from '../services/monaco-performance-benchmark'
 import { useThemeStore } from '../store/theme-store'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('MonacoPerformanceMonitor')
 
 interface MonacoPerformanceMonitorProps {
   editor?: monaco.editor.IStandaloneCodeEditor
@@ -37,7 +40,7 @@ export function MonacoPerformanceMonitor({ editor, monaco, visible, onClose }: M
 
   const runBenchmark = useCallback(async () => {
     if (!editor || !monaco) {
-      console.warn('[MonacoPerformanceMonitor] Editor not initialized')
+      logger.warn('[MonacoPerformanceMonitor] Editor not initialized')
       return
     }
 
@@ -50,7 +53,7 @@ export function MonacoPerformanceMonitor({ editor, monaco, visible, onClose }: M
       setMetrics(result)
       setLastRunTime(new Date())
     } catch (error) {
-      console.error('[MonacoPerformanceMonitor] Benchmark failed:', error)
+      logger.error('[MonacoPerformanceMonitor] Benchmark failed:', error)
     } finally {
       setIsRunning(false)
     }

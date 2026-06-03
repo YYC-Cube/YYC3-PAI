@@ -73,7 +73,7 @@ interface RouterState {
   isScanning: boolean
 }
 
-let routerState: RouterState = {
+const routerState: RouterState = {
   nodes: [],
   lastScanTime: 0,
   isScanning: false,

@@ -9,6 +9,10 @@
  * tags: [util],[storage]
  */
 
+import { createLogger } from '../utils/logger';
+
+const logger = createLogger('indexed-db')
+
 // ============================================================
 // 类型定义
 // ============================================================
@@ -117,7 +121,7 @@ export class IndexedDB {
         transaction.onerror = () => reject(transaction.error);
       });
     } catch (error) {
-      console.error(`IndexedDB put error (${storeName}):`, error);
+      logger.error(`IndexedDB put error (${storeName}):`, error);
       throw error;
     }
   }
@@ -137,7 +141,7 @@ export class IndexedDB {
         request.onerror = () => reject(request.error);
       });
     } catch (error) {
-      console.error(`IndexedDB get error (${storeName}):`, error);
+      logger.error(`IndexedDB get error (${storeName}):`, error);
       throw error;
     }
   }
@@ -157,7 +161,7 @@ export class IndexedDB {
         request.onerror = () => reject(request.error);
       });
     } catch (error) {
-      console.error(`IndexedDB getAll error (${storeName}):`, error);
+      logger.error(`IndexedDB getAll error (${storeName}):`, error);
       throw error;
     }
   }
@@ -177,7 +181,7 @@ export class IndexedDB {
         transaction.onerror = () => reject(transaction.error);
       });
     } catch (error) {
-      console.error(`IndexedDB delete error (${storeName}):`, error);
+      logger.error(`IndexedDB delete error (${storeName}):`, error);
       throw error;
     }
   }
@@ -197,7 +201,7 @@ export class IndexedDB {
         transaction.onerror = () => reject(transaction.error);
       });
     } catch (error) {
-      console.error(`IndexedDB clear error (${storeName}):`, error);
+      logger.error(`IndexedDB clear error (${storeName}):`, error);
       throw error;
     }
   }

@@ -24,6 +24,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import ReactMarkdown from 'react-markdown'
 import remarkGfm from 'remark-gfm'
 import { useThemeStore } from '../../store/theme-store'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('AIResponseFormatter')
 
 // ── 类型定义 ──
 export interface ContextMemory {
@@ -73,7 +76,7 @@ class ContextMemoryManager {
 
       localStorage.setItem(this.storageKey, JSON.stringify(contexts))
     } catch (error) {
-      console.error('[AI Context] ❌ 保存上下文失败:', error)
+      logger.error('[AI Context] ❌ 保存上下文失败:', error)
     }
   }
 
@@ -82,7 +85,7 @@ class ContextMemoryManager {
       const contexts = this.getAllContexts()
       return contexts.find(c => c.sessionId === sessionId) || null
     } catch (error) {
-      console.error('[AI Context] ❌ 获取上下文失败:', error)
+      logger.error('[AI Context] ❌ 获取上下文失败:', error)
       return null
     }
   }
@@ -138,7 +141,7 @@ class ContextMemoryManager {
       const contexts = this.getAllContexts().filter(c => c.sessionId !== sessionId)
       localStorage.setItem(this.storageKey, JSON.stringify(contexts))
     } catch (error) {
-      console.error('[AI Context] ❌ 清除会话失败:', error)
+      logger.error('[AI Context] ❌ 清除会话失败:', error)
     }
   }
 
@@ -217,7 +220,7 @@ export function EnhancedMarkdown({
 
       onCopyCode?.(text, 'markdown')
     } catch (error) {
-      console.error('[EnhancedMD] 复制失败:', error)
+      logger.error('[EnhancedMD] 复制失败:', error)
     }
   }, [onCopyCode])
 

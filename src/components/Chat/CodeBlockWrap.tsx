@@ -9,7 +9,9 @@ import { visit } from 'unist-util-visit'
 type Opt = { onInsertEditor?: (code: string) => void }
 
 export const codeBlockPlugin = (_opt: Opt) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (tree: any) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     visit(tree, 'element', (node: any) => {
       if (node.tagName === 'pre' && node.children?.[0]?.tagName === 'code') {
         const codeNode = node.children[0]

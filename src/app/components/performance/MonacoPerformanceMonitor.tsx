@@ -10,9 +10,12 @@
  * @tags performance,monitor,monaco,ui
  */
 
+import { Clock, Play, RotateCcw, TrendingDown, TrendingUp, X, Zap } from 'lucide-react'
 import { useEffect } from 'react'
 import { useMonacoPerformanceMonitor, usePerformanceData, type PerformanceStats } from '../../hooks/useMonacoPerformanceMonitor'
-import { X, Play, RotateCcw, TrendingUp, TrendingDown, Zap, Clock } from 'lucide-react'
+import { createLogger } from '../../utils/logger'
+
+const logger = createLogger('MonacoPerfMonitor')
 
 /**
  * 性能指标卡片
@@ -26,7 +29,7 @@ function MetricCard({ title, value, unit, trend, target }: {
 }) {
   const isGood = target ? value <= target : trend !== 'down'
   const trendIcon = trend === 'up' ? <TrendingUp className="w-4 h-4" /> :
-                   trend === 'down' ? <TrendingDown className="w-4 h-4" /> : null
+    trend === 'down' ? <TrendingDown className="w-4 h-4" /> : null
 
   return (
     <div className={`p-4 rounded-lg border ${isGood ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
@@ -96,21 +99,21 @@ export function MonacoPerformanceMonitor({ editorRef }: { editorRef: React.RefOb
 
   const handleRunBenchmark = async () => {
     if (!editorRef.current) {
-      console.warn('[PerformanceMonitor] No editor instance available')
+      logger.warn('[PerformanceMonitor] No editor instance available')
       return
     }
 
     // 模拟性能基准测试
-    
+
     // 模拟文件打开性能测试
     const fileOpenTime = Math.random() * 50 + 100 // 100-150ms
-    
+
     // 模拟光标移动性能测试
     const cursorMoveTime = Math.random() * 5 + 10 // 10-15ms
-    
+
     // 模拟语法高亮性能测试
     const syntaxHighlightTime = Math.random() * 20 + 80 // 80-100ms
-    
+
     // 模拟内存使用
     const memoryUsage = Math.random() * 20 + 60 // 60-80MB
 
@@ -227,10 +230,9 @@ export function MonacoPerformanceMonitor({ editorRef }: { editorRef: React.RefOb
                   <Clock className="w-5 h-5 text-purple-600" />
                   <span className="text-sm font-medium text-gray-700">综合评分</span>
                 </div>
-                <span className={`text-2xl font-bold ${
-                  currentStats.overallScore >= 80 ? 'text-green-600' :
-                  currentStats.overallScore >= 60 ? 'text-yellow-600' : 'text-red-600'
-                }`}>
+                <span className={`text-2xl font-bold ${currentStats.overallScore >= 80 ? 'text-green-600' :
+                    currentStats.overallScore >= 60 ? 'text-yellow-600' : 'text-red-600'
+                  }`}>
                   {currentStats.overallScore}
                 </span>
               </div>

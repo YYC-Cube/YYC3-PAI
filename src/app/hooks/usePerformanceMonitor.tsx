@@ -176,7 +176,7 @@ export function usePerformanceMonitor(options: UsePerformanceMonitorOptions = {}
           })
         }
       } catch (error) {
-        console.error('[Performance Monitor] Failed to collect system metrics:', error)
+        logger.error('[Performance Monitor] Failed to collect system metrics:', error)
       }
     }
 

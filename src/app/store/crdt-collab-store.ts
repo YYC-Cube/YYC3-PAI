@@ -11,12 +11,12 @@
  * @tags store,crdt,yjs,collaboration,realtime
  */
 
+import { IndexeddbPersistence } from 'y-indexeddb'
+import { WebrtcProvider } from 'y-webrtc'
+import { WebsocketProvider } from 'y-websocket'
+import * as Y from 'yjs'
 import { create } from 'zustand'
 import { immer } from 'zustand/middleware/immer'
-import * as Y from 'yjs'
-import { WebsocketProvider } from 'y-websocket'
-import { WebrtcProvider } from 'y-webrtc'
-import { IndexeddbPersistence } from 'y-indexeddb'
 import { createLogger } from '../utils/logger'
 
 const logger = createLogger('crdt')
@@ -198,7 +198,7 @@ export const useCRDTCollabStore = create<CollabState & CollabStoreActions>()(
           })
         }
       } catch (error) {
-        console.error('[CRDT] Failed to load user info:', error)
+        logger.error('[CRDT] Failed to load user info:', error)
       }
 
       logger.info('Collaboration system initialized')
@@ -220,7 +220,7 @@ export const useCRDTCollabStore = create<CollabState & CollabStoreActions>()(
           await get().disconnect()
         }
       } catch (error) {
-        console.error('[CRDT] Failed to set connection type:', error)
+        logger.error('[CRDT] Failed to set connection type:', error)
         set((state) => {
           state.connectionStatus = 'error'
           state.error = error instanceof Error ? error.message : String(error)
@@ -242,7 +242,7 @@ export const useCRDTCollabStore = create<CollabState & CollabStoreActions>()(
           localStorage.setItem('yyc3_collab_usercolor', color)
         }
       } catch (error) {
-        console.error('[CRDT] Failed to save user info:', error)
+        logger.error('[CRDT] Failed to save user info:', error)
       }
     },
 
@@ -448,7 +448,7 @@ export const useCRDTCollabStore = create<CollabState & CollabStoreActions>()(
         })
 
         wsProvider.on('connection-error', (event: Event) => {
-          console.error(`[CRDT] WebSocket error for ${docId}:`, event)
+          logger.error(`[CRDT] WebSocket error for ${docId}:`, event)
           set((s) => {
             s.connectionStatus = 'error'
             s.error = 'Connection error'

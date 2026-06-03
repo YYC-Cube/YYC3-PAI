@@ -34,6 +34,9 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 import { indexedDBService } from '../services/indexeddb-service'
 import { useSelfMediaStore } from '../store/self-media-store'
 import { BLUR, Z_INDEX, useThemeStore } from '../store/theme-store'
+import { createLogger } from '../utils/logger'
+
+const logger = createLogger('MaterialManager')
 
 // ── Types ──
 
@@ -135,7 +138,7 @@ export function MaterialManager({ visible, onClose, onInsertContent }: MaterialM
           item.storedInIDB = true
           item.content = `__idb_ref:${item.id}`
         } catch (e) {
-          console.warn('[MaterialManager] IDB save failed, fallback to localStorage:', e)
+          logger.warn('[MaterialManager] IDB save failed, fallback to localStorage:', e)
         }
       }
     }
