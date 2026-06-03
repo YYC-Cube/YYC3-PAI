@@ -53,6 +53,14 @@ Thumbs.db
 e2e/My-mgmt*/
 image/
 
+# Large binary assets — not tracked in git
+public/music/**/*.mp3
+public/music/**/*.wav
+public/music/**/*.flac
+public/music/**/*.ogg
+public/music/**/*.aac
+public/music/**/*.m4a
+
 # Misc
 .cache
 .temp

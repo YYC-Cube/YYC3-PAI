@@ -164,7 +164,7 @@ jobs:
           NODE_ENV: production
 
       - name: Copy CNAME for custom domain
-        run: cp CNAME dist/CNAME
+        run: cp public/CNAME dist/CNAME
 
       - name: Remove music files from Pages deployment
         run: |

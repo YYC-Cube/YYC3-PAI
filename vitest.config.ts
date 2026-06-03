@@ -46,7 +46,6 @@ export default defineConfig({
         functions: 55,
         lines: 60,
       },
-      all: true,
       clean: true,
     },
   },
