@@ -31,19 +31,14 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npx pnpm@${{ env.PNPM_VERSION }} install --frozen-lockfile
 
       - name: ESLint check
         run: npx eslint src/ --max-warnings=76
 
       - name: TypeScript type check
-        run: pnpm run type-check
+        run: npx pnpm@${{ env.PNPM_VERSION }} run type-check
 
   # ===========================================
   # Job 2: Unit Tests
@@ -61,16 +56,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npx pnpm@${{ env.PNPM_VERSION }} install --frozen-lockfile
 
       - name: Run tests with coverage
-        run: pnpm run test:coverage
+        run: npx pnpm@${{ env.PNPM_VERSION }} run test:coverage
 
       - name: Upload coverage report
         if: always()
@@ -96,16 +86,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npx pnpm@${{ env.PNPM_VERSION }} install --frozen-lockfile
 
       - name: Build production bundle
-        run: pnpm run build
+        run: npx pnpm@${{ env.PNPM_VERSION }} run build
         env:
           NODE_ENV: production
 
@@ -146,16 +131,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npx pnpm@${{ env.PNPM_VERSION }} install --frozen-lockfile
 
       - name: Build
-        run: pnpm run build
+        run: npx pnpm@${{ env.PNPM_VERSION }} run build
         env:
           NODE_ENV: production
 
@@ -195,16 +175,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npx pnpm@${{ env.PNPM_VERSION }} install --frozen-lockfile
 
       - name: Build release
-        run: pnpm run build
+        run: npx pnpm@${{ env.PNPM_VERSION }} run build
         env:
           NODE_ENV: production
 
@@ -259,16 +234,11 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
 
-      - name: Enable pnpm
-        run: |
-          corepack enable
-          corepack prepare pnpm@${{ env.PNPM_VERSION }} --activate
-
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: npx pnpm@${{ env.PNPM_VERSION }} install --frozen-lockfile
 
       - name: Run npm audit
-        run: pnpm audit --audit-level=moderate || true
+        run: npx pnpm@${{ env.PNPM_VERSION }} audit --audit-level=moderate || true
 
       - name: Dependency review
         if: github.event_name == 'pull_request'
