@@ -166,11 +166,6 @@ jobs:
       - name: Copy CNAME for custom domain
         run: cp public/CNAME dist/CNAME
 
-      - name: Remove music files from Pages deployment
-        run: |
-          rm -rf dist/music dist/music-manifest.json
-          echo "✅ Removed music files (reduced dist size by $(du -sh dist/ | cut -f1))"
-
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
